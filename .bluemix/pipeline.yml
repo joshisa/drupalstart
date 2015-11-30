@@ -62,6 +62,15 @@ stages:
       echo -e "${tools}${Cyan}    Setting up default site folders ...${no_color}"
       mv ./bluezone/configtweaks/files ./htdocs/drupal-7.41/sites/default
 
+      echo -e "${tools}${Yellow}    Setting up best practice modules  ...${no_color}"
+      echo -e "${tools}${Cyan}      Installing Security Review Module ...${no_color}"
+      wget http://ftp.drupal.org/files/projects/security_review-7.x-1.2.zip -nv -O ./bluezone/securityreview.zip
+      unzip -o ./bluezone/securityreview.zip -d ./htdocs/drupal-7.41/sites/all/modules > /dev/null 2>&1
+
+      echo -e "${tools}${Cyan}      Installing 403 Redirect Module ...${no_color}"
+      wget http://ftp.drupal.org/files/projects/r4032login-7.x-1.8.zip -nv -O ./bluezone/r4032login.zip
+      unzip -o ./bluezone/r4032login.zip -d ./htdocs/drupal-7.41/sites/all/modules > /dev/null 2>&1
+
       echo -e "${tools}${Cyan}    Setting up user provided modules ...${no_color}"
       for f in ./bluezone/configtweaks/libraries/*; do
           if [ -d ${f} ]; then
@@ -118,6 +127,11 @@ stages:
       else
          echo -e "${tools}${Cyan}    NO Drupal Config file detected, using default ...${no_color}"
          cp ./htdocs/drupal-7.41/sites/default/default.settings.php ./htdocs/drupal-7.41/sites/default/settings.php
+         echo -e "\$application = getenv(\"VCAP_APPLICATION\");" >> ./htdocs/drupal-7.41/sites/default/settings.php
+         echo -e "\$application_json = json_decode(\$application,true);" >> ./htdocs/drupal-7.41/sites/default/settings.php
+         echo -e "if (isset(\$application_json[\"application_uris\"])) {" >> ./htdocs/drupal-7.41/sites/default/settings.php
+         echo -e "  \$base_url = \$application_json[\"application_uris\"][0];" >> ./htdocs/drupal-7.41/sites/default/settings.php
+         echo -e "}"
          echo -e "\$services = getenv(\"VCAP_SERVICES\");" >> ./htdocs/drupal-7.41/sites/default/settings.php
          echo -e "\$services_json = json_decode(\$services,true);" >> ./htdocs/drupal-7.41/sites/default/settings.php
          echo -e "if (isset(\$services_json)) {" >> ./htdocs/drupal-7.41/sites/default/settings.php

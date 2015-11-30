@@ -40,7 +40,7 @@ stages:
       present='\xF0\x9F\x8E\x81'
       #############
       echo ""
-      echo -e "${cloud}${Cyan}  Let's setup Piwik for initial deployment${no_color}"
+      echo -e "${cloud}${Cyan}  Let's setup Drupal for initial deployment${no_color}"
       echo -e "${tools}${Yellow}    Updating apt-get ...${no_color}"
       sudo apt-get update > /dev/null 2>&1
       # Install jq
@@ -53,117 +53,38 @@ stages:
       echo -e "${harpoons}${Yellow}    Updating git submodules ...${no_color}"
       git submodule update --init --recursive > /dev/null 2>&1
       
-      echo -e "${harpoons}${Yellow}    Fetching Piwik 2.15.0 Zip ...${no_color}"
+      echo -e "${harpoons}${Yellow}    Fetching Drupal Zip ...${no_color}"
       mkdir htdocs
-      wget https://builds.piwik.org/piwik-2.15.0.zip -nv -O ./bluezone/piwik.zip
-      echo -e "${tools}${Yellow}    Extracting Piwik${no_color}"
-      unzip -o ./bluezone/piwik.zip -d ./htdocs > /dev/null 2>&1
-      
-      echo -e "${harpoons}${Yellow}    Fetching GeoLiteCity Data Zip ...${no_color}"
-      wget http://geolite.maxmind.com/download/geoip/database/GeoLiteCity.dat.gz -nv -O ./bluezone/GeoLiteCity.dat.gz
-      gunzip -c < ./bluezone/GeoLiteCity.dat.gz > ./htdocs/piwik/misc/GeoIPCity.dat
-      
-      echo -e "${tools}${Yellow}    Setting up some extra marketplace Piwik plugins ...${no_color}"
-      echo -e "${harpoons}${Cyan}      Installing SecurityInfo ...${no_color}"
-      wget https://plugins.piwik.org/api/1.0/plugins/SecurityInfo/download/1.0.5 -nv -O ./bluezone/SecurityInfo.zip
-      unzip -o ./bluezone/SecurityInfo.zip -d ./htdocs/piwik/plugins > /dev/null 2>&1
-      
-      echo -e "${harpoons}${Cyan}      Installing LDAP Login ...${no_color}"
-      wget https://plugins.piwik.org/api/1.0/plugins/LoginLdap/download/3.2.1 -nv -O ./bluezone/LoginLdap.zip
-      unzip -o ./bluezone/LoginLdap.zip -d ./htdocs/piwik/plugins > /dev/null 2>&1
-
-      echo -e "${harpoons}${Cyan}      Installing CustomAlerts ...${no_color}"
-      wget https://plugins.piwik.org/api/1.0/plugins/CustomAlerts/download/0.1.21 -nv -O ./bluezone/CustomAlerts.zip
-      unzip -o ./bluezone/CustomAlerts.zip -d ./htdocs/piwik/plugins > /dev/null 2>&1
-      
-      echo -e "${harpoons}${Cyan}      Installing CustomOptOut ...${no_color}"
-      wget https://plugins.piwik.org/api/1.0/plugins/CustomOptOut/download/0.4.0 -nv -O ./bluezone/CustomOptOut.zip
-      unzip -o ./bluezone/CustomOptOut.zip -d ./htdocs/piwik/plugins > /dev/null 2>&1
-      
-      echo -e "${harpoons}${Cyan}      Installing SimpleSysMon ...${no_color}"
-      wget https://plugins.piwik.org/api/1.0/plugins/SimpleSysMon/download/0.3.1 -nv -O ./bluezone/SimpleSysMon.zip
-      unzip -o ./bluezone/SimpleSysMon.zip -d ./htdocs/piwik/plugins > /dev/null 2>&1
-      
-      echo -e "${harpoons}${Cyan}      Installing FlagCounter ...${no_color}"
-      wget https://plugins.piwik.org/api/1.0/plugins/FlagCounter/download/0.4.0 -nv -O ./bluezone/FlagCounter.zip
-      unzip -o ./bluezone/FlagCounter.zip -d ./htdocs/piwik/plugins > /dev/null 2>&1
-      
-      echo -e "${harpoons}${Cyan}      Installing PerformanceInfo ...${no_color}"
-      wget https://plugins.piwik.org/api/1.0/plugins/PerformanceInfo/download/v0.2.2 -nv -O ./bluezone/PerformanceInfo.zip
-      unzip -o ./bluezone/PerformanceInfo.zip -d ./htdocs/piwik/plugins > /dev/null 2>&1
-      
-      echo -e "${harpoons}${Cyan}      Installing PlatformsReport ...${no_color}"
-      wget https://plugins.piwik.org/api/1.0/plugins/PlatformsReport/download/1.0.3 -nv -O ./bluezone/PlatformsReport.zip
-      unzip -o ./bluezone/PlatformsReport.zip -d ./htdocs/piwik/plugins > /dev/null 2>&1
-      
-      echo -e "${harpoons}${Cyan}      Installing SimplePageBuilder ...${no_color}"
-      wget https://plugins.piwik.org/api/1.0/plugins/SimplePageBuilder/download/1.1.0 -nv -O ./bluezone/SimplePageBuilder.zip
-      unzip -o ./bluezone/SimplePageBuilder.zip -d ./htdocs/piwik/plugins > /dev/null 2>&1
+      wget http://ftp.drupal.org/files/projects/drupal-7.41.zip -nv -O ./bluezone/drupal.zip
+      echo -e "${tools}${Yellow}    Extracting Drupal${no_color}"
+      unzip -o ./bluezone/drupal.zip -d ./htdocs > /dev/null 2>&1
       
       echo -e "${tools}${Cyan}    Setting up user provided plugins ...${no_color}"
       for f in ./bluezone/configtweaks/plugins; do
           if [ -d ${f} ]; then
               # Will not run if no directories are available
               echo -e "${harpoons}${Cyan}      Installing ${f} User-Provided Plugin ...${no_color}"
-              mv $f ./htdocs/piwik/plugins
+              # mv $f ./htdocs/drupal/plugins
           else
               echo -e "${fail}${Cyan}      No User-Provided Plugins detected...${no_color}"
           fi
       done
       
-      echo -e "${tools}${Yellow}    Setting up some extra marketplace Piwik themes ...${no_color}"
-      echo -e "${harpoons}${Cyan}      Installing the Darkness Theme ...${no_color}"
-      wget https://themes.piwik.org/api/1.0/plugins/Darkness/download/0.1.4 -nv -O ./bluezone/Darkness.zip
-      unzip -o ./bluezone/Darkness.zip -d ./htdocs/piwik/plugins > /dev/null 2>&1
-      
-      # Deactivated because of 404 failure
-      # echo -e "    ${Cyan}Installing the Proteus_Bold Theme ...${no_color}"
-      # wget https://themes.piwik.org/api/1.0/plugins/Proteus_Bold/download/0.1.4 -nv -O ./bluezone/ProteusBold.zip
-      # unzip -o ./bluezone/ProteusBold.zip -d ./htdocs/piwik/plugins > /dev/null 2>&1
-      
-      echo -e "${tools}${Yellow}    Setting up unicode font support ...${no_color}"
-      echo -e "${harpoons}${Cyan}      Installing the unifont.ttf ...${no_color}"
-      wget http://piwik.org/wp-content/uploads/unifont.ttf.zip -nv -O ./bluezone/unifont.ttf.zip
-      unzip -o ./bluezone/unifont.ttf.zip -d ./htdocs/piwik/plugins/ImageGraph/fonts > /dev/null 2>&1
-      
-      # Organize the artifact structure to be composer friendly
-      echo -e "${tools}${Yellow}    Making artifacts composer install friendly ...${no_color}"
-      mv ./htdocs/piwik/composer.json .
-      mv ./htdocs/piwik/composer.lock .
-      echo -e "${tools}${Yellow}    Patching composer.json paths ...${no_color}"
-      jq '.autoload["psr-4"]["Piwik\\\\Plugins\\\\"] = "htdocs/piwik/plugins"  | .autoload["psr-4"]["Piwik\\\\"] = "htdocs/piwik/core"  | .autoload["psr-0"]["Zend_"] = "htdocs/piwik/libs" | .autoload["psr-0"]["HTML_"] = "htdocs/piwik/libs" | .autoload["psr-0"]["PEAR_"] = "htdocs/piwik/libs" | .autoload["psr-0"]["Archive_"] = "htdocs/piwik/libs"' composer.json > tmp.$$.json 
-      rm composer.json
-      mv tmp.$$.json composer.json
-      
-      # Setup Twilio support
-      echo -e "${tools}${Yellow}    Setting up Twilio support ...${no_color}"
-      mv ./bluezone/twilio-php ./bluezone/twilio-php-master
-      mv ./bluezone/twilio-php-master ./htdocs/piwik/libs
-      mv ./bluezone/apptweaks/SMSProvider.php ./htdocs/piwik/plugins/MobileMessaging
-      mv ./bluezone/apptweaks/Twilio.php ./htdocs/piwik/plugins/MobileMessaging/SMSProvider
-      
       # Organize the artifact structure to be CF PHP Buildpack friendly
       echo -e "${cloud}${Yellow}    Making artifacts CF PHP friendly ...${no_color}"
       mv ./bluezone/configtweaks/.bp-config .
       mkdir .extensions
-      mkdir .extensions/geoip
-      mv ./bluezone/configtweaks/extension.py .extensions/geoip
       mv ./bluezone/configtweaks/.php-extensions .
       
       # Organize the artifact structure to facilitate BMX deploy
       echo -e "${cloud}${Yellow}    Making piwik artifacts ${Cyan}Bluemix ${Yellow}friendly ...${no_color}"
-      mv ./bluezone/configtweaks/bootstrap.php ./htdocs/piwik
-      mv ./bluezone/configtweaks/.user.ini ./htdocs/piwik
-      mv ./bluezone/configtweaks/.htaccess ./htdocs/piwik
-      mv ./bluezone/apptweaks/FormDatabaseSetup.php ./htdocs/piwik/plugins/Installation
-      mv ./bluezone/apptweaks/Controller.php ./htdocs/piwik/plugins/Installation
-      mv ./bluezone/apptweaks/FormFirstWebsiteSetup.php ./htdocs/piwik/plugins/Installation
-      mv ./bluezone/apptweaks/upgrade.php ./htdocs/piwik/libs/upgradephp
-      
+      mv ./bluezone/configtweaks/.user.ini ./htdocs/drupal-7.41
+      # mv ./bluezone/configtweaks/.htaccess ./htdocs/piwik
+      #
       # Embed config file if provided
       if [ -f "./bluezone/configtweaks/config.ini.php" ]
       then
-         echo -e "${tools}${Cyan}    Piwik Config file detected ...${no_color}"
+         echo -e "${tools}${Cyan}    Drupal Config file detected ...${no_color}"
          mv ./bluezone/configtweaks/config.ini.php ./htdocs/piwik/config
       fi
       
@@ -177,10 +98,10 @@ stages:
       echo -e "${tools}${Yellow}    Generating config helper download script...${no_color}"
       echo -e "#!/bin/bash" > fetchConfig.sh
       echo -e "rm ./bluezone/configtweaks/config.ini.php" >> fetchConfig.sh
-      echo -e "cf files${PROJECT_NAME[1]} /app/htdocs/piwik/config/config.ini.php | sed '/Plugins\[\] = \"ExampleAPI\"/d' | sed '/Plugins\[\] = \"ExamplePlugin\"/d' | sed '/Plugins\[\] = \"ExampleRssWidget\"/d' | sed '/Plugins\[\] = \"Feedback\"/d' > ./bluezone/configtweaks/config.ini.php" >> fetchConfig.sh
+      echo -e "cf files${PROJECT_NAME[1]} /app/htdocs/drupal-7.41/config/config.ini.php > ./bluezone/configtweaks/config.ini.php" >> fetchConfig.sh
       echo -e "sed -i -e '1,3d' ./bluezone/configtweaks/config.ini.php" >> fetchConfig.sh
       chmod +x fetchConfig.sh
-      echo -e "${present} ${beers}${Green}  Way to go! Your Piwik Assembly present is ready!"
+      echo -e "${present} ${beers}${Green}  Way to go! Your Drupal Assembly present is ready!"
 - name: SameDayDelivery
   inputs:
   - type: job
@@ -226,22 +147,12 @@ stages:
       present='\xF0\x9F\x8E\x81'
       #############
       # http://serverfault.com/questions/7503/how-to-determine-if-a-bash-variable-is-empty#answer-382740
-      if [ -z $(cf s|grep piwikredis|cut -d" " -f1-1) ]; then
-        echo -e "${tools}${Yellow}  Pre-creating RedisCloud Service named [${Cyan}piwikredis${Yellow}]${no_color}"
-        n=0
-        until [ $n -ge 5 ]
-        do
-           cf cs rediscloud 30mb piwikredis > /dev/null 2>&1 && break
-           n=$[$n+1]
-           sleep 15
-        done
-      fi
-      if [ -z $(cf s|grep piwikdb|cut -d" " -f1-1) ]; then
-        echo -e "${tools}${Yellow}  Pre-creating ClearDB MySQL Service named [${Cyan}piwikdb${Yellow}]${no_color}"
+      if [ -z $(cf s|grep drupaldb|cut -d" " -f1-1) ]; then
+        echo -e "${tools}${Yellow}  Pre-creating PostGresql Service named [${Cyan}drupaldb${Yellow}]${no_color}"
         q=0
         until [ $q -ge 5 ]
         do
-           cf cs cleardb spark piwikdb > /dev/null 2>&1 && break
+           cf cs elephantsql lemur drupaldb > /dev/null 2>&1 && break
            q=$[$q+1]
            sleep 15
         done
@@ -267,7 +178,7 @@ stages:
       p=0
       until [ $p -ge 2 ]
       do
-         cf push "${CF_APP}" && echo -e "${beer} ${beers}${Green}  Congrats! Your secure Piwik deploy is up and running!${no_color}" && echo -e "${beer} ${beers}${Green}  finis coronat opus${no_color}" && break
+         cf push "${CF_APP}" && echo -e "${beer} ${beers}${Green}  Congrats! Your secure Drupal deploy is up and running!${no_color}" && echo -e "${beer} ${beers}${Green}  finis coronat opus${no_color}" && break
          p=$[$p+1]
          sleep 10
       done

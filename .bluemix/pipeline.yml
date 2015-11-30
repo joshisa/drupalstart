@@ -131,7 +131,7 @@ stages:
          echo -e "\$application_json = json_decode(\$application,true);" >> ./htdocs/drupal-7.41/sites/default/settings.php
          echo -e "if (isset(\$application_json[\"application_uris\"])) {" >> ./htdocs/drupal-7.41/sites/default/settings.php
          echo -e "  \$base_url = \$application_json[\"application_uris\"][0];" >> ./htdocs/drupal-7.41/sites/default/settings.php
-         echo -e "}"
+         echo -e "}" >> ./htdocs/drupal-7.41/sites/default/settings.php
          echo -e "\$services = getenv(\"VCAP_SERVICES\");" >> ./htdocs/drupal-7.41/sites/default/settings.php
          echo -e "\$services_json = json_decode(\$services,true);" >> ./htdocs/drupal-7.41/sites/default/settings.php
          echo -e "if (isset(\$services_json)) {" >> ./htdocs/drupal-7.41/sites/default/settings.php

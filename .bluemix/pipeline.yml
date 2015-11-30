@@ -82,8 +82,7 @@ stages:
       # mv ./bluezone/configtweaks/.htaccess ./htdocs/piwik
       #
       # Embed config file if provided
-      if [ -f "./bluezone/configtweaks/settings.php" ]
-      then
+      if [ -f "./bluezone/configtweaks/settings.php" ]; then
          echo -e "${tools}${Cyan}    Drupal Config file detected ...${no_color}"
          mv ./bluezone/configtweaks/settings.php ./htdocs/drupal-7.41/sites/default
       else

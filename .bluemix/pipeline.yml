@@ -59,14 +59,14 @@ stages:
       echo -e "${tools}${Yellow}    Extracting Drupal${no_color}"
       unzip -o ./bluezone/drupal.zip -d ./htdocs > /dev/null 2>&1
       
-      echo -e "${tools}${Cyan}    Setting up user provided plugins ...${no_color}"
+      echo -e "${tools}${Cyan}    Setting up user provided modules ...${no_color}"
       for f in ./bluezone/configtweaks/plugins; do
           if [ -d ${f} ]; then
               # Will not run if no directories are available
-              echo -e "${harpoons}${Cyan}      Installing ${f} User-Provided Plugin ...${no_color}"
+              echo -e "${harpoons}${Cyan}      Installing ${f} User-Provided Module ...${no_color}"
               # mv $f ./htdocs/drupal/plugins
           else
-              echo -e "${fail}${Cyan}      No User-Provided Plugins detected...${no_color}"
+              echo -e "${fail}${Cyan}      No User-Provided Modules detected...${no_color}"
           fi
       done
       
@@ -82,10 +82,37 @@ stages:
       # mv ./bluezone/configtweaks/.htaccess ./htdocs/piwik
       #
       # Embed config file if provided
-      if [ -f "./bluezone/configtweaks/config.ini.php" ]
+      if [ -f "./bluezone/configtweaks/settings.php" ]
       then
          echo -e "${tools}${Cyan}    Drupal Config file detected ...${no_color}"
-         mv ./bluezone/configtweaks/config.ini.php ./htdocs/piwik/config
+         mv ./bluezone/configtweaks/settings.php ./htdocs/drupal-7.41/sites/default
+      else
+         echo -e "${tools}${Cyan}    NO Drupal Config file detected, using default ...${no_color}"
+         cp ./htdocs/drupal-7.41/sites/default/default.settings.php ./htdocs/drupal-7.41/sites/default/settings.php
+         echo -e "$services = getenv(\"VCAP_SERVICES\");" >> ./htdocs/drupal-7.41/sites/default/settings.php
+         echo -e "$services_json = json_decode($services,true);" >> ./htdocs/drupal-7.41/sites/default/settings.php
+         echo -e "if (isset($services_json)) {" >> ./htdocs/drupal-7.41/sites/default/settings.php
+         echo -e "  if (isset($services_json[\"user-provided\"][0][\"credentials\"])) {" >> ./htdocs/drupal-7.41/sites/default/settings.php
+         echo -e "    $postgres_config = $services_json[\"user-provided\"][0][\"credentials\"];" >> ./htdocs/drupal-7.41/sites/default/settings.php
+         echo -e "    list($hostname, $port) = explode(':', $postgres_config[\"public_hostname\"]);"
+         echo -e "    $dbname = 'compose'"
+         echo -e "  }" >> ./htdocs/drupal-7.41/sites/default/settings.php
+         echo -e "}" >> ./htdocs/drupal-7.41/sites/default/settings.php
+         echo -e "$databases = array (" >> ./htdocs/drupal-7.41/sites/default/settings.php
+         echo -e "  'default' =>" >> ./htdocs/drupal-7.41/sites/default/settings.php
+         echo -e "  array (" >> ./htdocs/drupal-7.41/sites/default/settings.php
+         echo -e "    'default' =>" >> ./htdocs/drupal-7.41/sites/default/settings.php
+         echo -e "    array (" >> ./htdocs/drupal-7.41/sites/default/settings.php
+         echo -e "      'driver' => 'pgsql'," >> ./htdocs/drupal-7.41/sites/default/settings.php
+         echo -e "      'database' => $dbname," >> ./htdocs/drupal-7.41/sites/default/settings.php
+         echo -e "      'username' => $postgres_config[\"username\"]," >> ./htdocs/drupal-7.41/sites/default/settings.php
+         echo -e "      'password' => $postgres_config[\"password\"]," >> ./htdocs/drupal-7.41/sites/default/settings.php
+         echo -e "      'host' => $hostname," >> ./htdocs/drupal-7.41/sites/default/settings.php
+         echo -e "      'port' => $port," >> ./htdocs/drupal-7.41/sites/default/settings.php
+         echo -e "      'prefix' => 'main_'" >> ./htdocs/drupal-7.41/sites/default/settings.php
+         echo -e "    )," >> ./htdocs/drupal-7.41/sites/default/settings.php
+         echo -e "  )," >> ./htdocs/drupal-7.41/sites/default/settings.php
+         echo -e ");" >> ./htdocs/drupal-7.41/sites/default/settings.php
       fi
       
       # Cleaning up
@@ -97,9 +124,9 @@ stages:
       IFS='|' read -ra PROJECT_NAME <<< "$IDS_PROJECT_NAME"
       echo -e "${tools}${Yellow}    Generating config helper download script...${no_color}"
       echo -e "#!/bin/bash" > fetchConfig.sh
-      echo -e "rm ./bluezone/configtweaks/config.ini.php" >> fetchConfig.sh
-      echo -e "cf files${PROJECT_NAME[1]} /app/htdocs/drupal-7.41/config/config.ini.php > ./bluezone/configtweaks/config.ini.php" >> fetchConfig.sh
-      echo -e "sed -i -e '1,3d' ./bluezone/configtweaks/config.ini.php" >> fetchConfig.sh
+      echo -e "rm ./bluezone/configtweaks/settings.php" >> fetchConfig.sh
+      echo -e "cf files${PROJECT_NAME[1]} /app/htdocs/drupal-7.41/sites/default/settings.php > ./bluezone/configtweaks/settings.php" >> fetchConfig.sh
+      echo -e "sed -i -e '1,3d' ./bluezone/configtweaks/settings.php" >> fetchConfig.sh
       chmod +x fetchConfig.sh
       echo -e "${present} ${beers}${Green}  Way to go! Your Drupal Assembly present is ready!"
 - name: SameDayDelivery

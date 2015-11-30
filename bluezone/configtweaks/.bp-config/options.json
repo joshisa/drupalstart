@@ -1,8 +1,5 @@
 {
-  "PHP_EXTENSIONS": ["bz2", "zlib", "curl", "mcrypt", "mbstring", "mysqli", "gd", "zip", "pdo", "pdo_mysql", "redis"],
+  "PHP_EXTENSIONS": ["bz2", "zlib", "curl", "mcrypt", "mbstring", "mysqli", "gd", "zip", "pdo", "pdo_mysql", "redis", "pgsql"],
   "PHP_VERSION": "{PHP_56_LATEST}",
-  "COMPOSER_INSTALL_OPTIONS": ["--no-interaction", "--no-dev", "--no-scripts"],
-  "COMPOSER_VENDOR_DIR": "htdocs/piwik/vendor",
-  "WEBDIR": "htdocs/piwik",
-  "LIBDIR": "htdocs/piwik/libs"
+  "WEBDIR": "htdocs/drupal-7.41"
 }

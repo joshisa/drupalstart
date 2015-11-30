@@ -19,7 +19,7 @@ stages:
       # are made available under the terms of the Eclipse Public License v1.0
       # which accompanies this distribution, and is available at
       # http://www.eclipse.org/legal/epl-v10.html
-      # Derived from dW article @ https://developer.ibm.com/bluemix/2014/07/03/getting-started-piwik-ibm-bluemix/
+      # Derived from dW article @ https://developer.ibm.com/bluemix/2014/02/17/deploy-drupal-application-ibm-bluemix/
       ##########
       # Colors - Lets have some fun ##
       ##########
@@ -77,9 +77,9 @@ stages:
       mv ./bluezone/configtweaks/.php-extensions .
       
       # Organize the artifact structure to facilitate BMX deploy
-      echo -e "${cloud}${Yellow}    Making piwik artifacts ${Cyan}Bluemix ${Yellow}friendly ...${no_color}"
+      echo -e "${cloud}${Yellow}    Making drupal artifacts ${Cyan}Bluemix ${Yellow}friendly ...${no_color}"
       mv ./bluezone/configtweaks/.user.ini ./htdocs/drupal-7.41
-      # mv ./bluezone/configtweaks/.htaccess ./htdocs/piwik
+      # mv ./bluezone/configtweaks/.htaccess ./htdocs/drupal-7.41
       #
       # Embed config file if provided
       if [ -f "./bluezone/configtweaks/settings.php" ]; then

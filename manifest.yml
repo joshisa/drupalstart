@@ -1,12 +1,11 @@
 ---
 applications:
-- name: piwikstart
+- name: drupalstart
   memory: 384M
   instances: 1
   path: .
   stack: cflinuxfs2
   buildpack: https://github.com/cloudfoundry/php-buildpack
   services:
-  -  piwikdb
+  -  drupaldb
   -  sendmail
-  -  piwikredis

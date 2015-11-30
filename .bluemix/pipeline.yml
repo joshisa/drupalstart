@@ -59,17 +59,40 @@ stages:
       echo -e "${tools}${Yellow}    Extracting Drupal${no_color}"
       unzip -o ./bluezone/drupal.zip -d ./htdocs > /dev/null 2>&1
       
+      echo -e "${tools}${Cyan}    Setting up default site folders ...${no_color}"
+      mv ./bluezone/configtweaks/files ./htdocs/drupal-7.41/sites/default
+
       echo -e "${tools}${Cyan}    Setting up user provided modules ...${no_color}"
-      for f in ./bluezone/configtweaks/plugins; do
+      for f in ./bluezone/configtweaks/libraries; do
           if [ -d ${f} ]; then
               # Will not run if no directories are available
               echo -e "${harpoons}${Cyan}      Installing ${f} User-Provided Module ...${no_color}"
-              # mv $f ./htdocs/drupal/plugins
+              mv $f ./htdocs/drupal-7.41/sites/all/libraries
           else
               echo -e "${fail}${Cyan}      No User-Provided Modules detected...${no_color}"
           fi
       done
       
+      for f in ./bluezone/configtweaks/modules; do
+          if [ -d ${f} ]; then
+              # Will not run if no directories are available
+              echo -e "${harpoons}${Cyan}      Installing ${f} User-Provided Module ...${no_color}"
+              mv $f ./htdocs/drupal-7.41/sites/all/modules
+          else
+              echo -e "${fail}${Cyan}      No User-Provided Modules detected...${no_color}"
+          fi
+      done
+
+      for f in ./bluezone/configtweaks/themes; do
+          if [ -d ${f} ]; then
+              # Will not run if no directories are available
+              echo -e "${harpoons}${Cyan}      Installing ${f} User-Provided Module ...${no_color}"
+              mv $f ./htdocs/drupal-7.41/sites/all/themes
+          else
+              echo -e "${fail}${Cyan}      No User-Provided Modules detected...${no_color}"
+          fi
+      done
+
       # Organize the artifact structure to be CF PHP Buildpack friendly
       echo -e "${cloud}${Yellow}    Making artifacts CF PHP friendly ...${no_color}"
       mv ./bluezone/configtweaks/.bp-config .

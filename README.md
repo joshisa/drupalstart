@@ -1,10 +1,10 @@
-[![Deploy to Bluemix](https://bluemix.net/deploy/button_x2.png)](https://bluemix.net/deploy?repository=https://github.com/joshisa/piwikstart)
-###Piwik::Self-Assembly
+[![Deploy to Bluemix](https://bluemix.net/deploy/button_x2.png)](https://bluemix.net/deploy?repository=https://github.com/joshisa/drupalstart)
+###Drupal::Self-Assembly
 <i>noun</i>
  1. The spontaneous formation of a body in a medium containing the appropriate components
- 2. The rapid instantiation of a [Piwik](http://piwik.org/ "Piwik") Deployment Instance on IBM Bluemix containing the appropriate components.
+ 2. The rapid instantiation of a [Drupal](https://www.drupal.org/ "Drupal") Deployment Instance on IBM Bluemix containing the appropriate components.
 
-An opinionated one-click self-assembling deployment of the Piwik platform for web and traffic analytics onto a CloudFoundry platform. A number of marketplace plugins are automatically installed and available for activation. Twilio and Sendgrid CloudFoundry based service support is baked in.  
+An opinionated one-click self-assembling deployment of the Drupal platform for content management software onto a CloudFoundry platform.  
 
 #### Why?
 Open source projects are awesome. PaaS CloudFoundry enabling of self-hosted open source application platforms is messy.  Making a mashup between cool opensource and cloud-enabling tweaks that makes deployment feel sweet and simple is "hard to do".  Legal review burdens aside, the level of ongoing maintenance effort is directly proportional to the number of tweaks in the mashup.  So, keeping a repository concise and abbreviated in content is smart.  My objective with this repo experiment is to facilitate consistent, rapid Piwik deploys on IBM Bluemix with minimal deployment friction using the fewest files possible.
@@ -12,30 +12,8 @@ Open source projects are awesome. PaaS CloudFoundry enabling of self-hosted open
 #### Getting Started  (Pre-requisite: [CF CLI](https://github.com/cloudfoundry/cli/releases "CF CLI"))
 - Click the Deploy Button Above.  Verification Point:  Await success of all 4 steps on the deploy page.
  
-![Step 1](https://github.com/joshisa/piwikstart/blob/master/bluezone/img/step1.png)
+#### [TBD - Text below is just placeholder info]
 
-- Click on the 2nd step (Cloned Repository Successfully).  Click on the Edit Code button in the upper right to establish a git repository for your newly created project.  There is a **git** section that should contain your repo url.  
-![Git URL Section](https://github.com/joshisa/piwikstart/blob/master/bluezone/img/giturl.png)
-- Clone the repo of the IBM DevOps repository to your local machine.  
-  ``` git clone https://hub.jazz.net/git/<your_id>/<app_name>/ ``` 
-- Browse to the web installation url @ https://replace_me_with_app_name.mybluemix.net/ and complete the multi-step process.  During the system check phase, it is normal to see a file integrity check warning message.  This is caused by:
-  - movement of composer config files
-  - missing .gitignore files
-  - detection of web installer tweaks to reduce end user friction
-  - 403 blocked access for the piwik.php test because of default security hardening
-
-![Admin](https://github.com/joshisa/piwikstart/blob/master/bluezone/img/admin.png)
-
-- At this point, you should login and browse to the administration section of Piwik.  It is important for you to **ACTIVATE** at least one plugin (SecurityInfo: Recommended) to proceed with this install process.  This is required in order to have a fully generated **config.ini.php** prior to downloading it. **NOTE**: To encourage better security practices, the deploy is configured to only allow login via **HTTPS** and will force redirect any attempts to access the deploy via NON-SSL.  As a convenience, this repo "assembles" the following plugins within the deployment:
-  - SecurityInfo (recommended)
-  - PerformanceInfo (recommended)
-  - PlatformsReport (recommended)
-  - SimpleSysMon (recommended)
-  - LoginLdap
-  - CustomAlerts
-  - CustomOptOut
-  - FlagCounter
-  - SimplePageBuilder
 - Your choices will be persisted within a generated file named **config.ini.php** that we will need to pull down and persist back into the repository.  As an application running on a PaaS, the app's local file storage is ephemeral.  Without persistence, any restart or crash/restart sequence will cause your Piwik application to revert back to the web installer sequence.
 - Within the terminal, browse to the root dir of your local cloned repo and execute a command similar to:
 ```

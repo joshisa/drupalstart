@@ -63,7 +63,7 @@ stages:
       mv ./bluezone/configtweaks/files ./htdocs/drupal-7.41/sites/default
 
       echo -e "${tools}${Cyan}    Setting up user provided modules ...${no_color}"
-      for f in ./bluezone/configtweaks/libraries; do
+      for f in ./bluezone/configtweaks/libraries/*; do
           if [ -d ${f} ]; then
               # Will not run if no directories are available
               echo -e "${harpoons}${Cyan}      Installing ${f} User-Provided Module ...${no_color}"
@@ -73,7 +73,7 @@ stages:
           fi
       done
       
-      for f in ./bluezone/configtweaks/modules; do
+      for f in ./bluezone/configtweaks/modules/*; do
           if [ -d ${f} ]; then
               # Will not run if no directories are available
               echo -e "${harpoons}${Cyan}      Installing ${f} User-Provided Module ...${no_color}"
@@ -83,7 +83,7 @@ stages:
           fi
       done
 
-      for f in ./bluezone/configtweaks/themes; do
+      for f in ./bluezone/configtweaks/themes/*; do
           if [ -d ${f} ]; then
               # Will not run if no directories are available
               echo -e "${harpoons}${Cyan}      Installing ${f} User-Provided Module ...${no_color}"
@@ -102,6 +102,13 @@ stages:
       # Organize the artifact structure to facilitate BMX deploy
       echo -e "${cloud}${Yellow}    Making drupal artifacts ${Cyan}Bluemix ${Yellow}friendly ...${no_color}"
       mv ./bluezone/configtweaks/.user.ini ./htdocs/drupal-7.41
+
+      echo -e "${cloud}${Yellow}    Hardening drupal .htaccess ...${no_color}"
+      echo -e "" >> ./htdocs/drupal-7.41/.htaccess
+      echo -e "# Forces a redirect to SSL" >> ./htdocs/drupal-7.41/.htaccess
+      echo -e "RewriteCond %{HTTP:X-Forwarded-Proto} !https" >> ./htdocs/drupal-7.41/.htaccess
+      echo -e "RewriteRule .* https://%{SERVER_NAME}%{REQUEST_URI} [R,L]" >> ./htdocs/drupal-7.41/.htaccess
+
       # mv ./bluezone/configtweaks/.htaccess ./htdocs/drupal-7.41
       #
       # Embed config file if provided

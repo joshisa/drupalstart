@@ -88,26 +88,26 @@ stages:
       else
          echo -e "${tools}${Cyan}    NO Drupal Config file detected, using default ...${no_color}"
          cp ./htdocs/drupal-7.41/sites/default/default.settings.php ./htdocs/drupal-7.41/sites/default/settings.php
-         echo -e "$services = getenv(\"VCAP_SERVICES\");" >> ./htdocs/drupal-7.41/sites/default/settings.php
-         echo -e "$services_json = json_decode($services,true);" >> ./htdocs/drupal-7.41/sites/default/settings.php
-         echo -e "if (isset($services_json)) {" >> ./htdocs/drupal-7.41/sites/default/settings.php
-         echo -e "  if (isset($services_json[\"user-provided\"][0][\"credentials\"])) {" >> ./htdocs/drupal-7.41/sites/default/settings.php
-         echo -e "    $postgres_config = $services_json[\"user-provided\"][0][\"credentials\"];" >> ./htdocs/drupal-7.41/sites/default/settings.php
-         echo -e "    list($hostname, $port) = explode(':', $postgres_config[\"public_hostname\"]);" >> ./htdocs/drupal-7.41/sites/default/settings.php
-         echo -e "    $dbname = 'compose'" >> ./htdocs/drupal-7.41/sites/default/settings.php
+         echo -e "\$services = getenv(\"VCAP_SERVICES\");" >> ./htdocs/drupal-7.41/sites/default/settings.php
+         echo -e "\$services_json = json_decode(\$services,true);" >> ./htdocs/drupal-7.41/sites/default/settings.php
+         echo -e "if (isset(\$services_json)) {" >> ./htdocs/drupal-7.41/sites/default/settings.php
+         echo -e "  if (isset(\$services_json[\"user-provided\"][0][\"credentials\"])) {" >> ./htdocs/drupal-7.41/sites/default/settings.php
+         echo -e "    \$postgres_config = \$services_json[\"user-provided\"][0][\"credentials\"];" >> ./htdocs/drupal-7.41/sites/default/settings.php
+         echo -e "    list(\$hostname, \$port) = explode(':', \$postgres_config[\"public_hostname\"]);" >> ./htdocs/drupal-7.41/sites/default/settings.php
+         echo -e "    \$dbname = 'compose';" >> ./htdocs/drupal-7.41/sites/default/settings.php
          echo -e "  }" >> ./htdocs/drupal-7.41/sites/default/settings.php
          echo -e "}" >> ./htdocs/drupal-7.41/sites/default/settings.php
-         echo -e "$databases = array (" >> ./htdocs/drupal-7.41/sites/default/settings.php
+         echo -e "\$databases = array (" >> ./htdocs/drupal-7.41/sites/default/settings.php
          echo -e "  'default' =>" >> ./htdocs/drupal-7.41/sites/default/settings.php
          echo -e "  array (" >> ./htdocs/drupal-7.41/sites/default/settings.php
          echo -e "    'default' =>" >> ./htdocs/drupal-7.41/sites/default/settings.php
          echo -e "    array (" >> ./htdocs/drupal-7.41/sites/default/settings.php
          echo -e "      'driver' => 'pgsql'," >> ./htdocs/drupal-7.41/sites/default/settings.php
-         echo -e "      'database' => $dbname," >> ./htdocs/drupal-7.41/sites/default/settings.php
-         echo -e "      'username' => $postgres_config[\"username\"]," >> ./htdocs/drupal-7.41/sites/default/settings.php
-         echo -e "      'password' => $postgres_config[\"password\"]," >> ./htdocs/drupal-7.41/sites/default/settings.php
-         echo -e "      'host' => $hostname," >> ./htdocs/drupal-7.41/sites/default/settings.php
-         echo -e "      'port' => $port," >> ./htdocs/drupal-7.41/sites/default/settings.php
+         echo -e "      'database' => \$dbname," >> ./htdocs/drupal-7.41/sites/default/settings.php
+         echo -e "      'username' => \$postgres_config[\"username\"]," >> ./htdocs/drupal-7.41/sites/default/settings.php
+         echo -e "      'password' => \$postgres_config[\"password\"]," >> ./htdocs/drupal-7.41/sites/default/settings.php
+         echo -e "      'host' => \$hostname," >> ./htdocs/drupal-7.41/sites/default/settings.php
+         echo -e "      'port' => \$port," >> ./htdocs/drupal-7.41/sites/default/settings.php
          echo -e "      'prefix' => 'main_'" >> ./htdocs/drupal-7.41/sites/default/settings.php
          echo -e "    )," >> ./htdocs/drupal-7.41/sites/default/settings.php
          echo -e "  )," >> ./htdocs/drupal-7.41/sites/default/settings.php

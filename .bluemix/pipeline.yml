@@ -178,7 +178,7 @@ stages:
         q=0
         until [ $q -ge 5 ]
         do
-           cf cs elephantsql lemur drupaldb > /dev/null 2>&1 && break
+           cf cs elephantsql turtle drupaldb > /dev/null 2>&1 && break
            q=$[$q+1]
            sleep 15
         done
@@ -195,7 +195,7 @@ stages:
         t=0
         until [ $t -ge 5 ]
         do
-           cf cs sendgrid free sendmail > /dev/null 2>&1 && break
+           # cf cs sendgrid free sendmail > /dev/null 2>&1 && break
            t=$[$t+1]
            sleep 15
         done

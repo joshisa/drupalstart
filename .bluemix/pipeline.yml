@@ -93,8 +93,8 @@ stages:
          echo -e "if (isset($services_json)) {" >> ./htdocs/drupal-7.41/sites/default/settings.php
          echo -e "  if (isset($services_json[\"user-provided\"][0][\"credentials\"])) {" >> ./htdocs/drupal-7.41/sites/default/settings.php
          echo -e "    $postgres_config = $services_json[\"user-provided\"][0][\"credentials\"];" >> ./htdocs/drupal-7.41/sites/default/settings.php
-         echo -e "    list($hostname, $port) = explode(':', $postgres_config[\"public_hostname\"]);"
-         echo -e "    $dbname = 'compose'"
+         echo -e "    list($hostname, $port) = explode(':', $postgres_config[\"public_hostname\"]);" >> ./htdocs/drupal-7.41/sites/default/settings.php
+         echo -e "    $dbname = 'compose'" >> ./htdocs/drupal-7.41/sites/default/settings.php
          echo -e "  }" >> ./htdocs/drupal-7.41/sites/default/settings.php
          echo -e "}" >> ./htdocs/drupal-7.41/sites/default/settings.php
          echo -e "$databases = array (" >> ./htdocs/drupal-7.41/sites/default/settings.php

@@ -1,5 +1,5 @@
 {
-  "PHP_EXTENSIONS": ["bz2", "zlib", "curl", "mcrypt", "mbstring", "mysqli", "gd", "zip", "pdo", "pdo_mysql", "redis", "pgsql"],
+  "PHP_EXTENSIONS": ["bz2", "zlib", "curl", "mcrypt", "mbstring", "mysqli", "gd", "zip", "pdo", "pdo_mysql", "redis", "pgsql", "pdo_pgsql"],
   "PHP_VERSION": "{PHP_56_LATEST}",
   "WEBDIR": "htdocs/drupal-7.41"
 }

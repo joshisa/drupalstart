@@ -18,8 +18,8 @@ Open source projects are awesome. PaaS CloudFoundry enabling of self-hosted open
   5.  Verification Point:  Your Bluemix dashboard should now show a drupaldb named PostGreSQL service.
 - Click the Deploy Button Above.  Verification Point:  Await success of all 4 steps on the deploy page.
  
-- [Optional] Site settings for Drupal 7 are persisted in a file named **settings.php** that we will need to pull down and persist back into the repository.  As an application running on a PaaS, the app's local file storage is ephemeral.  Without persistence, any restart or crash/restart sequence will cause your Piwik application to revert back to the web installer sequence.
-- Within the terminal, browse to the root dir of your local cloned IBM DevOps project repo (e.g.  git clone ::url to IBM DevOps project::) and execute a command similar to:
+- [Optional] Site settings for Drupal 7 are persisted in a file named **settings.php** that we can pull down and persist back into the repository.  As an application running on a PaaS, the app's local file storage is ephemeral.  This step is completely optional, depending on whether you desire to update the settings.php file beyond its default settings.
+  - Within the terminal, browse to the root dir of your local cloned IBM DevOps project repo (e.g.  git clone ::url to IBM DevOps project::) and execute a command similar to:
 ```
 $ cf files <replace_me_with_app_name> /app/fetchConfig.sh | sed -e '1,3d' > fetchConfig.sh
 $ chmod +x fetchConfig.sh

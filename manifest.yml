@@ -1,7 +1,7 @@
 ---
 applications:
 - name: drupalstart
-  memory: 384M
+  memory: 1G
   instances: 1
   path: .
   stack: cflinuxfs2

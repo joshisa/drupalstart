@@ -25,10 +25,10 @@ $ cf files <replace_me_with_app_name> /app/fetchConfig.sh | sed -e '1,3d' > fetc
 $ chmod +x fetchConfig.sh
 $ ./fetchConfig.sh
 ```
-- This should pull down a helper bash script named fetchConfig.sh.  Your app's name will already be populated :-)  This script helps you (repeatedly) persist the config file in the expected location.  It also will **DEACTIVATE** some of the Example Plugins that are deemed a performance+security vulnerability.
-- Perform a git add, git commit and git push to persist the config.ini.php within the IBM DevOps repository. For example,
+- This should pull down a helper bash script named fetchConfig.sh.  Your app's name will already be populated :-)  This script helps you (repeatedly) persist the config file in the expected location.
+- Perform a git add, git commit and git push to persist the settings.php within the IBM DevOps repository. For example,
 ```git add -A```
-```git commit -m "Persisting the installer wizard generated config.ini.php"```
+```git commit -m "Persisting the installer wizard generated settings.php"```
 ```git push```
 - With this git commit, your IBM DevOps pipeline will retrigger and re-deploy Drupal 7.  In a few short minutes, your Drupal application will be ready for you to use.
 
@@ -47,7 +47,7 @@ If you want to add additional Drupal modules not included within this repo,  dow
 ```git add -A```
 ```git commit -m "Added myawesomemodule to my Drupal deploy"```
 ```git push```
-- With this git commit, your IBM DevOps pipeline will retrigger and re-deploy Piwik.  You will then need to access the modules section of Drupal and **Enable** the myawesomemodule.
+- With this git commit, your IBM DevOps pipeline will retrigger and re-deploy Drupal.  You will then need to access the modules section of Drupal and **Enable** the myawesomemodule.
 
 #### Reference
 [Deploy a Drupal Application on Bluemix](https://developer.ibm.com/bluemix/2014/02/17/deploy-drupal-application-ibm-bluemix/)

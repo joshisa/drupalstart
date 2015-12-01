@@ -218,14 +218,8 @@ stages:
       #############
       # http://serverfault.com/questions/7503/how-to-determine-if-a-bash-variable-is-empty#answer-382740
       if [ -z $(cf s|grep drupaldb|cut -d" " -f1-1) ]; then
-        echo -e "${tools}${Yellow}  Pre-creating PostGresql Service named [${Cyan}drupaldb${Yellow}]${no_color}"
-        q=0
-        until [ $q -ge 5 ]
-        do
-           cf cs elephantsql turtle drupaldb > /dev/null 2>&1 && break
-           q=$[$q+1]
-           sleep 15
-        done
+        echo -e "${fail}${Red}  Compose PostGresql Service [${Yellow}drupaldb${Red}] was not found${no_color}"
+        return 1
       fi
       echo -e "${tools}${Yellow}  Sendgrid detection routine ...${no_color}" > /dev/null 2>&1
       if [ -n $(cf s|grep sendgrid|cut -d" " -f1-1) ] && [ $(cf s|grep sendgrid|cut -d" " -f1-1) != "sendmail" ]; then
@@ -235,14 +229,7 @@ stages:
         rm manifest.yml
         mv manifest.new manifest.yml
       else
-        echo -e "${tools}${Yellow}    Pre-creating Sendgrid Service named [${Cyan}sendmail${Yellow}]${no_color}"
-        t=0
-        until [ $t -ge 5 ]
-        do
-           # cf cs sendgrid free sendmail > /dev/null 2>&1 && break
-           t=$[$t+1]
-           sleep 15
-        done
+        echo -e "${fail}${Red}    Sendgrid Service [${Yellow}sendmail${Red}] was not available${no_color}"
       fi
 
       p=0

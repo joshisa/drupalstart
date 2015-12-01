@@ -8,4 +8,3 @@ applications:
   buildpack: https://github.com/cloudfoundry/php-buildpack
   services:
   -  drupaldb
-  -  sendmail

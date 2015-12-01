@@ -221,6 +221,7 @@ stages:
         echo -e "${fail}${Red}  Compose PostGresql Service [${Yellow}drupaldb${Red}] was not found${no_color}"
         return 1
       fi
+
       echo -e "${tools}${Yellow}  Sendgrid detection routine ...${no_color}" > /dev/null 2>&1
       if [ -n $(cf s|grep sendgrid|cut -d" " -f1-1) ] && [ $(cf s|grep sendgrid|cut -d" " -f1-1) != "sendmail" ]; then
         echo -e "${eyes}${Yellow}   Detected existing sendgrid service ${existingSendgrid} within target space${no_color}"
@@ -229,7 +230,7 @@ stages:
         rm manifest.yml
         mv manifest.new manifest.yml
       else
-        echo -e "${fail}${Red}    Sendgrid Service [${Yellow}sendmail${Red}] was not available${no_color}"
+        echo -e "${fail}${Red}    Sendgrid Service ${Yellow}sendmail${Red} was not available${no_color}"
       fi
 
       p=0

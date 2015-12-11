@@ -157,14 +157,14 @@ stages:
          echo -e "  )," >> ./htdocs/drupal-7.41/sites/default/settings.php
          echo -e ");" >> ./htdocs/drupal-7.41/sites/default/settings.php
          echo -e "//Tell Drupal it is behind a proxy" >> ./htdocs/drupal-7.41/sites/default/settings.php
-         echo -e "$conf['reverse_proxy'] = TRUE;" >> ./htdocs/drupal-7.41/sites/default/settings.php
+         echo -e "\$conf['reverse_proxy'] = TRUE;" >> ./htdocs/drupal-7.41/sites/default/settings.php
          echo -e "// Tell Drupal what addresses the proxy server(s) use." >> ./htdocs/drupal-7.41/sites/default/settings.php
-         echo -e "$conf['reverse_proxy_addresses'] = array('127.0.0.1');" >> ./htdocs/drupal-7.41/sites/default/settings.php
-         echo -e "$conf['page_cache_invoke_hooks'] = FALSE;" >> ./htdocs/drupal-7.41/sites/default/settings.php
-         echo -e "$conf['cache'] = 1;" >> ./htdocs/drupal-7.41/sites/default/settings.php
-         echo -e "$conf['cache_lifetime'] = 0;" >> ./htdocs/drupal-7.41/sites/default/settings.php
-         echo -e "$conf['page_cache_maximum_age'] = 600;" >> ./htdocs/drupal-7.41/sites/default/settings.php
-         echo -e "$conf['omit_vary_cookie'] = true;" >> ./htdocs/drupal-7.41/sites/default/settings.php
+         echo -e "\$conf['reverse_proxy_addresses'] = array('127.0.0.1');" >> ./htdocs/drupal-7.41/sites/default/settings.php
+         echo -e "\$conf['page_cache_invoke_hooks'] = FALSE;" >> ./htdocs/drupal-7.41/sites/default/settings.php
+         echo -e "\$conf['cache'] = 1;" >> ./htdocs/drupal-7.41/sites/default/settings.php
+         echo -e "\$conf['cache_lifetime'] = 0;" >> ./htdocs/drupal-7.41/sites/default/settings.php
+         echo -e "\$conf['page_cache_maximum_age'] = 600;" >> ./htdocs/drupal-7.41/sites/default/settings.php
+         echo -e "\$conf['omit_vary_cookie'] = true;" >> ./htdocs/drupal-7.41/sites/default/settings.php
       fi
       
       # Cleaning up

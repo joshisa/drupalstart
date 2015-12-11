@@ -70,6 +70,10 @@ stages:
       echo -e "${tools}${Cyan}      Installing 403 Redirect Module ...${no_color}"
       wget http://ftp.drupal.org/files/projects/r4032login-7.x-1.8.zip -nv -O ./bluezone/r4032login.zip
       unzip -o ./bluezone/r4032login.zip -d ./htdocs/drupal-7.41/sites/all/modules > /dev/null 2>&1
+      
+      echo -e "${tools}${Cyan}      Installing Varnish Module ...${no_color}"
+      wget http://ftp.drupal.org/files/projects/varnish-7.x-1.0-beta3.zip -nv -O ./bluezone/varnish.zip
+      unzip -o ./bluezone/varnish.zip -d ./htdocs/drupal-7.41/sites/all/modules > /dev/null 2>&1
 
       echo -e "${tools}${Cyan}    Setting up user provided modules ...${no_color}"
       for f in ./bluezone/configtweaks/libraries/*; do

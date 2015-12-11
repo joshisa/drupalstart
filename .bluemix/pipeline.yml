@@ -74,6 +74,12 @@ stages:
       echo -e "${tools}${Cyan}      Installing Varnish Module ...${no_color}"
       wget http://ftp.drupal.org/files/projects/varnish-7.x-1.0-beta3.zip -nv -O ./bluezone/varnish.zip
       unzip -o ./bluezone/varnish.zip -d ./htdocs/drupal-7.41/sites/all/modules > /dev/null 2>&1
+      
+      echo -e "${tools}${Red}      Patching Varnish Module to fix theme_hook_original on port bug ...${no_color}"
+      echo -e "${tools}${Yellow}      Reference: https://www.drupal.org/node/2371907#comment-9468011 ${no_color}"
+      cp ./bluezone/configtweaks/varnish-2371907-24.patch .
+      patch -d ./htdocs/drupal-7.41/sites/all/modules/varnish < ./varnish-2371907-24.patch
+      rm varnish-2371907-24.patch
 
       echo -e "${tools}${Cyan}    Setting up user provided modules ...${no_color}"
       for f in ./bluezone/configtweaks/libraries/*; do

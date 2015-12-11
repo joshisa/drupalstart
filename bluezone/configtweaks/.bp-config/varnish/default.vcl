@@ -41,12 +41,19 @@ backend default {
     .host = "127.0.0.1";
     .port = "8080";
     .probe = { 
-      .url = "/";
+      .request =
+        "OPTIONS * HTTP/1.1"
+        "Host: localhost"
+        "Connection: close"
+        "User-Agent: Varnish Health Probe";
       .timeout = 34 ms; 
       .interval = 1s; 
       .window = 10;
       .threshold = 8;
     }
+    .first_byte_timeout     = 300s;   # How long to wait before we receive a first byte from our backend?
+    .connect_timeout        = 5s;     # How long to wait for a backend connection?
+    .between_bytes_timeout  = 2s;     # How long to wait between bytes received from our backend?
 }
 
 sub vcl_recv {
@@ -257,7 +264,7 @@ sub vcl_deliver {
  #remove resp.http.Age;
  unset resp.http.Link;
  
- set resp.http.Server = "drupal.at.mybluemix.net";
+ set resp.http.Server = "www.bluemix.net";
  set resp.http.X-Powered-By = "Curiosity killed the cat - read more at linuxinside.gr";
 }
 

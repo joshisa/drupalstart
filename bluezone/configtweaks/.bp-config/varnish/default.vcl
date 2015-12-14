@@ -83,6 +83,7 @@ sub vcl_recv {
   # Do not cache these paths.
   if (req.url ~ "^/status\.php$" ||
       req.url ~ "^/update\.php$" ||
+      req.url ~ "^/install\.php$" ||
       req.url ~ "^/admin$" ||
       req.url ~ "^/admin/.*$" ||
       req.url ~ "^/flag/.*$" ||

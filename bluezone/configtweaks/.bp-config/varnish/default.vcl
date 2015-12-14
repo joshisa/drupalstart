@@ -204,6 +204,16 @@ sub vcl_error {
 "};
   return (deliver);
 }
+
+sub vcl_hash {
+  if (req.http.Cookie) {
+    hash_data(req.http.Cookie);
+  }
+  
+  if (req.http.x-forwarded-proto) {
+    hash_data(req.http.x-forwarded-proto);
+  }
+}
  
 #
 # Below is a commented-out copy of the default VCL logic.  If you

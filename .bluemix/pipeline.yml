@@ -125,8 +125,10 @@ stages:
       echo -e "${cloud}${Yellow}    Hardening drupal .htaccess ...${no_color}"
       echo -e "" >> ./htdocs/drupal-7.41/.htaccess
       echo -e "# Forces a redirect to SSL" >> ./htdocs/drupal-7.41/.htaccess
+      echo -e "RewriteCond %{HTTPS} off" >> ./htdocs/drupal-7.41/.htaccess
       echo -e "RewriteCond %{HTTP:X-Forwarded-Proto} !https" >> ./htdocs/drupal-7.41/.htaccess
-      echo -e "RewriteRule .* https://%{SERVER_NAME}%{REQUEST_URI} [R,L]" >> ./htdocs/drupal-7.41/.htaccess
+      echo -e "RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]" >> ./htdocs/drupal-7.41/.htaccess
+      
 
       # mv ./bluezone/configtweaks/.htaccess ./htdocs/drupal-7.41
       #

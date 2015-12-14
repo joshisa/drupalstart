@@ -175,6 +175,7 @@ stages:
          echo -e "\$conf['cache_lifetime'] = 0;" >> ./htdocs/drupal-7.41/sites/default/settings.php
          echo -e "\$conf['page_cache_maximum_age'] = 600;" >> ./htdocs/drupal-7.41/sites/default/settings.php
          echo -e "\$conf['omit_vary_cookie'] = true;" >> ./htdocs/drupal-7.41/sites/default/settings.php
+         echo -e "drupal_fast_404();" >> ./htdocs/drupal-7.41/sites/default/settings.php
       fi
       
       # Cleaning up

@@ -1,9 +1,9 @@
-"""geoip extension
-installs geoip
+"""
+installs extensions provided
 """
 import logging
 
-_log = logging.getLogger('geoip')
+# _log = logging.getLogger('geoip')
 
 
 # Extension Methods
@@ -24,7 +24,7 @@ def service_environment(ctx):
 
 
 def compile(install):
-    print 'Installing geoip ' 
+    print 'Installing any extensions provided by repo ... ' 
     (install.builder
         .move()
         .everything()

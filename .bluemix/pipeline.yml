@@ -224,6 +224,7 @@ stages:
          echo -e "\$conf['omit_vary_cookie'] = true;" >> ./htdocs/drupal-7.41/sites/default/settings.php
          echo -e "drupal_fast_404();" >> ./htdocs/drupal-7.41/sites/default/settings.php
          echo -e "\$conf['drupal_http_request_fails'] = FALSE;" >> ./htdocs/drupal-7.41/sites/default/settings.php
+         echo -e "\$conf['allow_authorize_operations'] = FALSE;" >> ./htdocs/drupal-7.41/sites/default/settings.php
       fi
       
       # Cleaning up

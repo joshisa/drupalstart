@@ -2,7 +2,7 @@
 ###Drupal::Self-Assembly
 <i>noun</i>
  1. The spontaneous formation of a body in a medium containing the appropriate components
- 2. The rapid instantiation of a [Drupal](https://www.drupal.org/ "Drupal") 7.x Deployment Instance on IBM Bluemix containing the appropriate components.
+ 2. The rapid instantiation of a [Drupal](https://www.drupal.org/ "Drupal") 7.x Deployment Instance on IBM Bluemix containing optimizations and components such as Varnish 3.x and Redis caching support. 
 
 An opinionated one-click self-assembling deployment of the Drupal platform for content management software onto a CloudFoundry platform.  
 

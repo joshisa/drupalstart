@@ -86,7 +86,7 @@ stages:
       echo -e "${tools}${Red}      Patching Varnish Module to fix theme_hook_original on port bug ...${no_color}"
       echo -e "${tools}${Yellow}      Reference: https://www.drupal.org/node/2371907#comment-9468011 ${no_color}"
       wget https://www.drupal.org/files/issues/varnish-2371907-24.patch -nv -O ./varnish-2371907-24.patch
-      patch -d ./htdocs/drupal-7.41/sites/all/modules/varnish < ./varnish-2371907-24.patch
+      patch -d ./htdocs/drupal-7.41/sites/all/modules/contrib/varnish < ./varnish-2371907-24.patch
       rm varnish-2371907-24.patch
 
       echo -e "${tools}${Cyan}    Setting up user provided modules ...${no_color}"

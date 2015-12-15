@@ -207,22 +207,6 @@ stages:
          echo -e "\$conf['lock_inc'] = 'sites/all/modules/contrib/redis/redis.lock.inc';" >> ./htdocs/drupal-7.41/sites/default/settings.php
          echo -e "\$conf['cache_backends'][] = 'sites/all/modules/contrib/redis/redis.autoload.inc';" >> ./htdocs/drupal-7.41/sites/default/settings.php
          echo -e "\$conf['cache_default_class'] = 'Redis_Cache';" >> ./htdocs/drupal-7.41/sites/default/settings.php 
-         echo -e "\$conf['cache_class_cache'] = 'Redis_Cache';" >> ./htdocs/drupal-7.41/sites/default/settings.php
-         echo -e "\$conf['cache_class_cache_form'] = 'DrupalDatabaseCache';" >> ./htdocs/drupal-7.41/sites/default/settings.php
-         echo -e "\$conf['cache_class_cache_views'] = 'Redis_Cache';" >> ./htdocs/drupal-7.41/sites/default/settings.php 
-         echo -e "\$conf['cache_class_cache_page'] = 'Redis_Cache';" >> ./htdocs/drupal-7.41/sites/default/settings.php 
-         echo -e "\$conf['cache_class_cache_menu'] = 'Redis_Cache';" >> ./htdocs/drupal-7.41/sites/default/settings.php 
-         echo -e "\$conf['cache_class_cache_path'] = 'Redis_Cache';" >> ./htdocs/drupal-7.41/sites/default/settings.php 
-         echo -e "\$conf['cache_class_cache_entity_node'] = 'Redis_Cache';" >> ./htdocs/drupal-7.41/sites/default/settings.php 
-         echo -e "\$conf['cache_class_cache_entity_taxonomy_term'] = 'Redis_Cache';" >> ./htdocs/drupal-7.41/sites/default/settings.php 
-         echo -e "\$conf['cache_class_cache_entity_taxonomy_vocabulary'] = 'Redis_Cache';" >> ./htdocs/drupal-7.41/sites/default/settings.php 
-         echo -e "\$conf['cache_class_cache_entity_file'] = 'Redis_Cache';" >> ./htdocs/drupal-7.41/sites/default/settings.php 
-         echo -e "\$conf['cache_class_cache_entity_user'] = 'Redis_Cache';" >> ./htdocs/drupal-7.41/sites/default/settings.php 
-         echo -e "\$conf['cache_class_cache_filter'] = 'Redis_Cache';" >> ./htdocs/drupal-7.41/sites/default/settings.php 
-         echo -e "\$conf['cache_class_cache_admin_menu'] = 'Redis_Cache';" >> ./htdocs/drupal-7.41/sites/default/settings.php 
-         echo -e "\$conf['cache_class_cache_bootstrap'] = 'Redis_Cache';" >> ./htdocs/drupal-7.41/sites/default/settings.php 
-         echo -e "\$conf['redis_client_base'] = 0;" >> ./htdocs/drupal-7.41/sites/default/settings.php 
-         echo -e "\$conf['cache_class_cache_field'] = 'Redis_Cache';" >> ./htdocs/drupal-7.41/sites/default/settings.php
          echo -e "*/" >> ./htdocs/drupal-7.41/sites/default/settings.php
       
          echo -e "" >> ./htdocs/drupal-7.41/sites/default/settings.php
@@ -235,6 +219,8 @@ stages:
          echo -e "\$conf['cache'] = 1;" >> ./htdocs/drupal-7.41/sites/default/settings.php
          echo -e "\$conf['cache_lifetime'] = 0;" >> ./htdocs/drupal-7.41/sites/default/settings.php
          echo -e "\$conf['page_cache_maximum_age'] = 600;" >> ./htdocs/drupal-7.41/sites/default/settings.php
+         echo -e "\$conf['cache_class_cache_form'] = 'DrupalDatabaseCache';" >> ./htdocs/drupal-7.41/sites/default/settings.php
+         echo -e "\$conf['cache_class_cache_page'] = 'DrupalDatabaseCache';" >> ./htdocs/drupal-7.41/sites/default/settings.php 
          echo -e "\$conf['omit_vary_cookie'] = true;" >> ./htdocs/drupal-7.41/sites/default/settings.php
          echo -e "drupal_fast_404();" >> ./htdocs/drupal-7.41/sites/default/settings.php
       fi

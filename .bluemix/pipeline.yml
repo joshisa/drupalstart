@@ -89,7 +89,7 @@ stages:
       patch -d ./htdocs/drupal-7.41/sites/all/modules/contrib/varnish < ./varnish-2371907-24.patch
       rm varnish-2371907-24.patch
 
-      echo -e "${tools}${Cyan}    Setting up user provided modules ...${no_color}"
+      echo -e "${tools}${Cyan}    Setting up user provided modules, libraries and themes ...${no_color}"
       for f in ./bluezone/configtweaks/libraries/*; do
           if [ -d ${f} ]; then
               # Will not run if no directories are available

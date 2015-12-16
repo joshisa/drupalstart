@@ -147,6 +147,12 @@ stages:
       echo -e "RewriteCond %{HTTP:X-Forwarded-Proto} !https" >> ./htdocs/drupal-7.41/.htaccess
       echo -e "RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]" >> ./htdocs/drupal-7.41/.htaccess
       
+      echo -e "<ifmodule mod_expires.c>" >> ./htdocs/drupal-7.41/.htaccess
+      echo -e "<Filesmatch \"\.(jpg|jpeg|png|gif|js|css|swf|ico|woff|mp3)$\">" >> ./htdocs/drupal-7.41/.htaccess
+      echo -e "    ExpiresActive on" >> ./htdocs/drupal-7.41/.htaccess
+      echo -e "    ExpiresDefault \"access plus 7 days\"" >> ./htdocs/drupal-7.41/.htaccess
+      echo -e "</Filesmatch>" >> ./htdocs/drupal-7.41/.htaccess
+      echo -e "</ifmodule>" >> ./htdocs/drupal-7.41/.htaccess
 
       # mv ./bluezone/configtweaks/.htaccess ./htdocs/drupal-7.41
       #

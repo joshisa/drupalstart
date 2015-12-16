@@ -75,6 +75,34 @@ stages:
       wget http://ftp.drupal.org/files/projects/r4032login-7.x-1.8.zip -nv -O ./bluezone/r4032login.zip
       unzip -o ./bluezone/r4032login.zip -d ./htdocs/drupal-7.41/sites/all/modules/contrib > /dev/null 2>&1
       
+      echo -e "${tools}${Cyan}      Installing Missing Module ...${no_color}"
+      wget http://ftp.drupal.org/files/projects/missing_module-7.x-1.0.zip -nv -O ./bluezone/missing.zip
+      unzip -o ./bluezone/missing.zip -d ./htdocs/drupal-7.41/sites/all/modules/contrib > /dev/null 2>&1
+      
+      echo -e "${tools}${Cyan}      Installing Advanced CSS/JS Aggregation Module ...${no_color}"
+      wget http://ftp.drupal.org/files/projects/advagg-7.x-2.17.zip -nv -O ./bluezone/advagg.zip
+      unzip -o ./bluezone/advagg.zip -d ./htdocs/drupal-7.41/sites/all/modules/contrib > /dev/null 2>&1
+      
+      echo -e "${tools}${Cyan}      Installing HTTP Parallel Request & Threading Library Module ...${no_color}"
+      wget http://ftp.drupal.org/files/projects/httprl-7.x-1.14.zip -nv -O ./bluezone/httprl.zip
+      unzip -o ./bluezone/httprl.zip -d ./htdocs/drupal-7.41/sites/all/modules/contrib > /dev/null 2>&1
+      
+      echo -e "${tools}${Cyan}      Installing Cache Expiration Module ...${no_color}"
+      wget http://ftp.drupal.org/files/projects/expire-7.x-2.0-rc4.zip -nv -O ./bluezone/expire.zip
+      unzip -o ./bluezone/expire.zip -d ./htdocs/drupal-7.41/sites/all/modules/contrib > /dev/null 2>&1
+      
+      echo -e "${tools}${Cyan}      Installing Entity Cache Module ...${no_color}"
+      wget http://ftp.drupal.org/files/projects/entitycache-7.x-1.5.zip -nv -O ./bluezone/entitycache.zip
+      unzip -o ./bluezone/entitycache.zip -d ./htdocs/drupal-7.41/sites/all/modules/contrib > /dev/null 2>&1
+      
+      echo -e "${tools}${Cyan}      Installing Shadown SQL Optimization Module ...${no_color}"
+      wget http://ftp.drupal.org/files/projects/shadow-7.x-1.0-beta3.zip -nv -O ./bluezone/shadow.zip
+      unzip -o ./bluezone/shadow.zip -d ./htdocs/drupal-7.41/sites/all/modules/contrib > /dev/null 2>&1
+      
+      echo -e "${tools}${Cyan}      Installing Performance and Scalability Checklist Module ...${no_color}"
+      wget http://ftp.drupal.org/files/projects/pasc-7.x-1.0-beta1.zip -nv -O ./bluezone/pasc.zip
+      unzip -o ./bluezone/pasc.zip -d ./htdocs/drupal-7.41/sites/all/modules/contrib > /dev/null 2>&1
+      
       echo -e "${tools}${Cyan}      Installing Redis Module ...${no_color}"
       wget http://ftp.drupal.org/files/projects/redis-7.x-3.11.zip -nv -O ./bluezone/redis.zip
       unzip -o ./bluezone/redis.zip -d ./htdocs/drupal-7.41/sites/all/modules/contrib > /dev/null 2>&1
@@ -147,6 +175,9 @@ stages:
       echo -e "RewriteCond %{HTTP:X-Forwarded-Proto} !https" >> ./htdocs/drupal-7.41/.htaccess
       echo -e "RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]" >> ./htdocs/drupal-7.41/.htaccess
       
+      echo -e "" >> ./htdocs/drupal-7.41/.htaccess
+      echo -e "# Reference: http://www.inmotionhosting.com/support/website/htaccess/apache-module-mod-expires" >> ./htdocs/drupal-7.41/.htaccess
+      echo -e "# Enforces an Expires header for responses to static content" >> ./htdocs/drupal-7.41/.htaccess
       echo -e "<ifmodule mod_expires.c>" >> ./htdocs/drupal-7.41/.htaccess
       echo -e "<Filesmatch \"\.(jpg|jpeg|png|gif|js|css|swf|ico|woff|mp3)$\">" >> ./htdocs/drupal-7.41/.htaccess
       echo -e "    ExpiresActive on" >> ./htdocs/drupal-7.41/.htaccess

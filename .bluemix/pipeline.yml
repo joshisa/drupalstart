@@ -200,7 +200,7 @@ stages:
       echo -e "RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]" >> ./htdocs/drupal-7.41/.htaccess
       
       echo -e "" >> ./htdocs/drupal-7.41/.htaccess
-      echo -e "# Enforces an Expires header for responses to static content" >> ./htdocs/drupal-7.41/.htaccess
+      echo -e "# Enforces an Expires header for responses to content" >> ./htdocs/drupal-7.41/.htaccess
       echo -e "<ifmodule mod_expires.c>" >> ./htdocs/drupal-7.41/.htaccess
       echo -e "ExpiresActive On" >> ./htdocs/drupal-7.41/.htaccess
       echo -e "ExpiresDefault A0" >> ./htdocs/drupal-7.41/.htaccess
@@ -208,24 +208,44 @@ stages:
       echo -e "# Set up caching on media files for 1 year (forever?)" >> ./htdocs/drupal-7.41/.htaccess
       echo -e "<FilesMatch \"\.(flv|ico|pdf|avi|mov|ppt|doc|mp3|wmv|wav)$\">" >> ./htdocs/drupal-7.41/.htaccess
       echo -e "    ExpiresDefault A29030400" >> ./htdocs/drupal-7.41/.htaccess
-      echo -e "    Header append Cache-Control \"public\"" >> ./htdocs/drupal-7.41/.htaccess
       echo -e "</Filesmatch>" >> ./htdocs/drupal-7.41/.htaccess
       
       echo -e "# Set up caching on media files for 4 week" >> ./htdocs/drupal-7.41/.htaccess
       echo -e "<FilesMatch \"\.(gif|jpg|jpeg|png|swf)$\">" >> ./htdocs/drupal-7.41/.htaccess
       echo -e "    ExpiresDefault A2419200" >> ./htdocs/drupal-7.41/.htaccess
-      echo -e "    Header append Cache-Control \"public\"" >> ./htdocs/drupal-7.41/.htaccess
       echo -e "</Filesmatch>" >> ./htdocs/drupal-7.41/.htaccess
       
       echo -e "# Set up 2 week caching on commonly updated files" >> ./htdocs/drupal-7.41/.htaccess
       echo -e "<FilesMatch \"\.(xml|txt|html|js|css)$\">" >> ./htdocs/drupal-7.41/.htaccess
       echo -e "    ExpiresDefault A1209600" >> ./htdocs/drupal-7.41/.htaccess
-      echo -e "    Header append Cache-Control \"proxy-revalidate\"" >> ./htdocs/drupal-7.41/.htaccess
       echo -e "</Filesmatch>" >> ./htdocs/drupal-7.41/.htaccess
       
       echo -e "# Force no caching for dynamic files" >> ./htdocs/drupal-7.41/.htaccess
       echo -e "<FilesMatch \"\.(php|cgi|pl|htm)$\">" >> ./htdocs/drupal-7.41/.htaccess
       echo -e "    ExpiresActive Off" >> ./htdocs/drupal-7.41/.htaccess
+      echo -e "</Filesmatch>" >> ./htdocs/drupal-7.41/.htaccess
+      echo -e "</ifmodule>" >> ./htdocs/drupal-7.41/.htaccess
+      
+      echo -e "# Sets up cache-control headers for responses to content" >> ./htdocs/drupal-7.41/.htaccess
+      echo -e "<ifmodule mod_headers.c>" >> ./htdocs/drupal-7.41/.htaccess
+      
+      echo -e "# Set up caching on media files for 1 year (forever?)" >> ./htdocs/drupal-7.41/.htaccess
+      echo -e "<FilesMatch \"\.(flv|ico|pdf|avi|mov|ppt|doc|mp3|wmv|wav)$\">" >> ./htdocs/drupal-7.41/.htaccess
+      echo -e "    Header append Cache-Control \"public\"" >> ./htdocs/drupal-7.41/.htaccess
+      echo -e "</Filesmatch>" >> ./htdocs/drupal-7.41/.htaccess
+      
+      echo -e "# Set up caching on media files for 4 week" >> ./htdocs/drupal-7.41/.htaccess
+      echo -e "<FilesMatch \"\.(gif|jpg|jpeg|png|swf)$\">" >> ./htdocs/drupal-7.41/.htaccess
+      echo -e "    Header append Cache-Control \"public\"" >> ./htdocs/drupal-7.41/.htaccess
+      echo -e "</Filesmatch>" >> ./htdocs/drupal-7.41/.htaccess
+      
+      echo -e "# Set up 2 week caching on commonly updated files" >> ./htdocs/drupal-7.41/.htaccess
+      echo -e "<FilesMatch \"\.(xml|txt|html|js|css)$\">" >> ./htdocs/drupal-7.41/.htaccess
+      echo -e "    Header append Cache-Control \"proxy-revalidate\"" >> ./htdocs/drupal-7.41/.htaccess
+      echo -e "</Filesmatch>" >> ./htdocs/drupal-7.41/.htaccess
+      
+      echo -e "# Force no caching for dynamic files" >> ./htdocs/drupal-7.41/.htaccess
+      echo -e "<FilesMatch \"\.(php|cgi|pl|htm)$\">" >> ./htdocs/drupal-7.41/.htaccess
       echo -e "    Header set Cache-Control \"private, no-cache, no-store, proxy-revalidate, no-transform\"" >> ./htdocs/drupal-7.41/.htaccess
       echo -e "    Header set Pragma \"no-cache\"" >> ./htdocs/drupal-7.41/.htaccess
       echo -e "</Filesmatch>" >> ./htdocs/drupal-7.41/.htaccess

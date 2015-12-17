@@ -62,7 +62,7 @@ stages:
       echo -e "${tools}${Cyan}    Setting up default site folders ...${no_color}"
       mv ./bluezone/configtweaks/files ./htdocs/drupal-7.41/sites/default
       
-            echo -e "${tools}${Yellow}    Setting up best practice modules, libraries, themes  ...${no_color}"
+      echo -e "${tools}${Yellow}    Setting up best practice modules, libraries, themes  ...${no_color}"
       # In many cases, these are updated modules highlighted after the default DKAN install
       # Some of the latter modules starting from security review help to create a snappy responsive deploy
       # Pre-emptive measure to simply download and install them during setup

@@ -42,7 +42,7 @@ stages:
       echo ""
       echo -e "${cloud}${Cyan}  Let's setup Drupal for initial deployment${no_color}"
       echo -e "${tools}${Yellow}    Updating apt-get ...${no_color}"
-      sudo apt-get update > /dev/null 2>&1
+      # sudo apt-get update > /dev/null 2>&1
       # Install jq
       echo -e "${tools}${Yellow}    Installing jq for JSON parsing support...${no_color}"
       sudo apt-get --assume-yes install jq > /dev/null 2>&1
@@ -61,52 +61,73 @@ stages:
       
       echo -e "${tools}${Cyan}    Setting up default site folders ...${no_color}"
       mv ./bluezone/configtweaks/files ./htdocs/drupal-7.41/sites/default
-
+      
       echo -e "${tools}${Yellow}    Setting up best practice modules, libraries, themes  ...${no_color}"
       echo -e "${tools}${Cyan}      Installing Predis Redis Client Library ...${no_color}"
       wget https://github.com/nrk/predis/archive/v1.0.3.zip -nv -O ./bluezone/predis.zip
       unzip -o ./bluezone/predis.zip -d ./htdocs/drupal-7.41/sites/all/libraries > /dev/null 2>&1
-
+      
+      echo -e "${tools}${Cyan}      Installing CorporateClean Theme ...${no_color}"
+      wget http://ftp.drupal.org/files/projects/corporateclean-7.x-2.3.zip -nv -O ./bluezone/corpclean.zip
+      unzip -o ./bluezone/corpclean.zip -d ./htdocs/drupal-7.41/sites/all/themes > /dev/null 2>&1
+      
       echo -e "${tools}${Cyan}      Installing Security Review Module ...${no_color}"
       wget http://ftp.drupal.org/files/projects/security_review-7.x-1.2.zip -nv -O ./bluezone/securityreview.zip
       unzip -o ./bluezone/securityreview.zip -d ./htdocs/drupal-7.41/sites/all/modules/contrib > /dev/null 2>&1
-
+      
       echo -e "${tools}${Cyan}      Installing 403 Redirect Module ...${no_color}"
       wget http://ftp.drupal.org/files/projects/r4032login-7.x-1.8.zip -nv -O ./bluezone/r4032login.zip
       unzip -o ./bluezone/r4032login.zip -d ./htdocs/drupal-7.41/sites/all/modules/contrib > /dev/null 2>&1
       
+      
       echo -e "${tools}${Cyan}      Installing Missing Module ...${no_color}"
       wget http://ftp.drupal.org/files/projects/missing_module-7.x-1.0.zip -nv -O ./bluezone/missing.zip
       unzip -o ./bluezone/missing.zip -d ./htdocs/drupal-7.41/sites/all/modules/contrib > /dev/null 2>&1
-      
+            
       echo -e "${tools}${Cyan}      Installing Advanced CSS/JS Aggregation Module ...${no_color}"
       wget http://ftp.drupal.org/files/projects/advagg-7.x-2.17.zip -nv -O ./bluezone/advagg.zip
       unzip -o ./bluezone/advagg.zip -d ./htdocs/drupal-7.41/sites/all/modules/contrib > /dev/null 2>&1
-      
+            
       echo -e "${tools}${Cyan}      Installing HTTP Parallel Request & Threading Library Module ...${no_color}"
       wget http://ftp.drupal.org/files/projects/httprl-7.x-1.14.zip -nv -O ./bluezone/httprl.zip
       unzip -o ./bluezone/httprl.zip -d ./htdocs/drupal-7.41/sites/all/modules/contrib > /dev/null 2>&1
-      
+            
       echo -e "${tools}${Cyan}      Installing Cache Expiration Module ...${no_color}"
       wget http://ftp.drupal.org/files/projects/expire-7.x-2.0-rc4.zip -nv -O ./bluezone/expire.zip
       unzip -o ./bluezone/expire.zip -d ./htdocs/drupal-7.41/sites/all/modules/contrib > /dev/null 2>&1
-      
+            
       echo -e "${tools}${Cyan}      Installing Entity Cache Module ...${no_color}"
       wget http://ftp.drupal.org/files/projects/entitycache-7.x-1.5.zip -nv -O ./bluezone/entitycache.zip
       unzip -o ./bluezone/entitycache.zip -d ./htdocs/drupal-7.41/sites/all/modules/contrib > /dev/null 2>&1
-      
-      echo -e "${tools}${Cyan}      Installing Shadown SQL Optimization Module ...${no_color}"
+            
+      echo -e "${tools}${Cyan}      Installing Shadow SQL Optimization Module ...${no_color}"
       wget http://ftp.drupal.org/files/projects/shadow-7.x-1.0-beta3.zip -nv -O ./bluezone/shadow.zip
       unzip -o ./bluezone/shadow.zip -d ./htdocs/drupal-7.41/sites/all/modules/contrib > /dev/null 2>&1
       
+      echo -e "${tools}${Cyan}      Installing Views Module ...${no_color}"
+      wget http://ftp.drupal.org/files/projects/views-7.x-3.13.zip -nv -O ./bluezone/views.zip
+      unzip -o ./bluezone/views.zip -d ./htdocs/drupal-7.41/sites/all/modules/contrib > /dev/null 2>&1
+      
+      echo -e "${tools}${Cyan}      Installing Advanced Help Module ...${no_color}"
+      wget http://ftp.drupal.org/files/projects/advanced_help-7.x-1.3.zip -nv -O ./bluezone/adhelp.zip
+      unzip -o ./bluezone/adhelp.zip -d ./htdocs/drupal-7.41/sites/all/modules/contrib > /dev/null 2>&1
+      
+      echo -e "${tools}${Cyan}      Installing Chaos Tool Suite Module ...${no_color}"
+      wget http://ftp.drupal.org/files/projects/ctools-7.x-1.9.zip -nv -O ./bluezone/ctools.zip
+      unzip -o ./bluezone/ctools.zip -d ./htdocs/drupal-7.41/sites/all/modules/contrib > /dev/null 2>&1
+            
       echo -e "${tools}${Cyan}      Installing Performance and Scalability Checklist Module ...${no_color}"
       wget http://ftp.drupal.org/files/projects/pasc-7.x-1.0-beta1.zip -nv -O ./bluezone/pasc.zip
       unzip -o ./bluezone/pasc.zip -d ./htdocs/drupal-7.41/sites/all/modules/contrib > /dev/null 2>&1
       
+      echo -e "${tools}${Cyan}      Installing ChecklistAPI Dependency Module ...${no_color}"
+      wget http://ftp.drupal.org/files/projects/checklistapi-7.x-1.2.zip -nv -O ./bluezone/checklistapi.zip
+      unzip -o ./bluezone/checklistapi.zip -d ./htdocs/drupal-7.41/sites/all/modules/contrib > /dev/null 2>&1
+      
       echo -e "${tools}${Cyan}      Installing Redis Module ...${no_color}"
       wget http://ftp.drupal.org/files/projects/redis-7.x-3.11.zip -nv -O ./bluezone/redis.zip
       unzip -o ./bluezone/redis.zip -d ./htdocs/drupal-7.41/sites/all/modules/contrib > /dev/null 2>&1
-
+      
       echo -e "${tools}${Cyan}      Installing Varnish Module ...${no_color}"
       wget http://ftp.drupal.org/files/projects/varnish-7.x-1.0-beta3.zip -nv -O ./bluezone/varnish.zip
       unzip -o ./bluezone/varnish.zip -d ./htdocs/drupal-7.41/sites/all/modules/contrib > /dev/null 2>&1
@@ -116,8 +137,8 @@ stages:
       wget https://www.drupal.org/files/issues/varnish-2371907-24.patch -nv -O ./varnish-2371907-24.patch
       patch -d ./htdocs/drupal-7.41/sites/all/modules/contrib/varnish < ./varnish-2371907-24.patch
       rm varnish-2371907-24.patch
-
-      echo -e "${tools}${Cyan}    Setting up user provided modules, libraries and themes ...${no_color}"
+      
+      echo -e "${tools}${Cyan}    Setting up user provided modules ...${no_color}"
       for f in ./bluezone/configtweaks/libraries/*; do
           if [ -d ${f} ]; then
               # Will not run if no directories are available
@@ -137,7 +158,7 @@ stages:
               echo -e "${fail}${Cyan}      No User-Provided Contrib Modules detected...${no_color}"
           fi
       done
-
+      
       for f in ./bluezone/configtweaks/modules/custom/*; do
           if [ -d ${f} ]; then
               # Will not run if no directories are available
@@ -157,17 +178,20 @@ stages:
               echo -e "${fail}${Cyan}      No User-Provided Themes detected...${no_color}"
           fi
       done
-
+      
       # Organize the artifact structure to be CF PHP Buildpack friendly
       echo -e "${cloud}${Yellow}    Making artifacts CF PHP friendly ...${no_color}"
       mv ./bluezone/configtweaks/.bp-config .
       mkdir .extensions
       mv ./bluezone/configtweaks/.php-extensions .
       
+      echo -e "${cloud}${Yellow}    Installing Loadtest verification token ...${no_color}"
+      echo -e "loaderio-a34735f2d043b82eb8a1105144b1ab99" > ./htdocs/drupal-7.41/loaderio-a34735f2d043b82eb8a1105144b1ab99.txt
+      
       # Organize the artifact structure to facilitate BMX deploy
       echo -e "${cloud}${Yellow}    Making drupal artifacts ${Cyan}Bluemix ${Yellow}friendly ...${no_color}"
       mv ./bluezone/configtweaks/.user.ini ./htdocs/drupal-7.41
-
+      
       echo -e "${cloud}${Yellow}    Hardening drupal .htaccess ...${no_color}"
       echo -e "" >> ./htdocs/drupal-7.41/.htaccess
       echo -e "# Forces a redirect to SSL" >> ./htdocs/drupal-7.41/.htaccess
@@ -176,14 +200,43 @@ stages:
       echo -e "RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]" >> ./htdocs/drupal-7.41/.htaccess
       
       echo -e "" >> ./htdocs/drupal-7.41/.htaccess
-      echo -e "# Reference: http://www.inmotionhosting.com/support/website/htaccess/apache-module-mod-expires" >> ./htdocs/drupal-7.41/.htaccess
       echo -e "# Enforces an Expires header for responses to static content" >> ./htdocs/drupal-7.41/.htaccess
       echo -e "<ifmodule mod_expires.c>" >> ./htdocs/drupal-7.41/.htaccess
-      echo -e "<Filesmatch \"\.(jpg|jpeg|png|gif|js|css|swf|ico|woff|mp3)$\">" >> ./htdocs/drupal-7.41/.htaccess
-      echo -e "    ExpiresActive on" >> ./htdocs/drupal-7.41/.htaccess
-      echo -e "    ExpiresDefault \"access plus 1 year\"" >> ./htdocs/drupal-7.41/.htaccess
+      echo -e "ExpiresActive On" >> ./htdocs/drupal-7.41/.htaccess
+      echo -e "ExpiresDefault A0" >> ./htdocs/drupal-7.41/.htaccess
+      
+      echo -e "# Set up caching on media files for 1 year (forever?)" >> ./htdocs/drupal-7.41/.htaccess
+      echo -e "<FilesMatch \"\.(flv|ico|pdf|avi|mov|ppt|doc|mp3|wmv|wav)$\">" >> ./htdocs/drupal-7.41/.htaccess
+      echo -e "    ExpiresDefault A29030400" >> ./htdocs/drupal-7.41/.htaccess
+      echo -e "    Header append Cache-Control \"public\"" >> ./htdocs/drupal-7.41/.htaccess
+      echo -e "</Filesmatch>" >> ./htdocs/drupal-7.41/.htaccess
+      
+      echo -e "# Set up caching on media files for 4 week" >> ./htdocs/drupal-7.41/.htaccess
+      echo -e "<FilesMatch \"\.(gif|jpg|jpeg|png|swf)$\">" >> ./htdocs/drupal-7.41/.htaccess
+      echo -e "    ExpiresDefault A2419200" >> ./htdocs/drupal-7.41/.htaccess
+      echo -e "    Header append Cache-Control \"public\"" >> ./htdocs/drupal-7.41/.htaccess
+      echo -e "</Filesmatch>" >> ./htdocs/drupal-7.41/.htaccess
+      
+      echo -e "# Set up 2 week caching on commonly updated files" >> ./htdocs/drupal-7.41/.htaccess
+      echo -e "<FilesMatch \"\.(xml|txt|html|js|css)$\">" >> ./htdocs/drupal-7.41/.htaccess
+      echo -e "    ExpiresDefault A1209600" >> ./htdocs/drupal-7.41/.htaccess
+      echo -e "    Header append Cache-Control \"proxy-revalidate\"" >> ./htdocs/drupal-7.41/.htaccess
+      echo -e "</Filesmatch>" >> ./htdocs/drupal-7.41/.htaccess
+      
+      echo -e "# Force no caching for dynamic files" >> ./htdocs/drupal-7.41/.htaccess
+      echo -e "<FilesMatch \"\.(php|cgi|pl|htm)$\">" >> ./htdocs/drupal-7.41/.htaccess
+      echo -e "    ExpiresActive Off" >> ./htdocs/drupal-7.41/.htaccess
+      echo -e "    Header set Cache-Control \"private, no-cache, no-store, proxy-revalidate, no-transform\"" >> ./htdocs/drupal-7.41/.htaccess
+      echo -e "    Header set Pragma \"no-cache\"" >> ./htdocs/drupal-7.41/.htaccess
       echo -e "</Filesmatch>" >> ./htdocs/drupal-7.41/.htaccess
       echo -e "</ifmodule>" >> ./htdocs/drupal-7.41/.htaccess
+      
+      echo -e "# Lets setup some compression for more speed" >> ./htdocs/drupal-7.41/.htaccess
+      echo -e "<ifModule mod_deflate.c>" >> ./htdocs/drupal-7.41/.htaccess
+      echo -e "  <FilesMatch \"\.(js|css)$\">" >> ./htdocs/drupal-7.41/.htaccess
+      echo -e "    SetOutputFilter DEFLATE" >> ./htdocs/drupal-7.41/.htaccess
+      echo -e "  </FilesMatch>" >> ./htdocs/drupal-7.41/.htaccess
+      echo -e "</ifModule>" >> ./htdocs/drupal-7.41/.htaccess
 
       # mv ./bluezone/configtweaks/.htaccess ./htdocs/drupal-7.41
       #

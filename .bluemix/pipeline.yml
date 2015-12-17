@@ -62,7 +62,27 @@ stages:
       echo -e "${tools}${Cyan}    Setting up default site folders ...${no_color}"
       mv ./bluezone/configtweaks/files ./htdocs/drupal-7.41/sites/default
       
-      echo -e "${tools}${Yellow}    Setting up best practice modules, libraries, themes  ...${no_color}"
+            echo -e "${tools}${Yellow}    Setting up best practice modules, libraries, themes  ...${no_color}"
+      # In many cases, these are updated modules highlighted after the default DKAN install
+      # Some of the latter modules starting from security review help to create a snappy responsive deploy
+      # Pre-emptive measure to simply download and install them during setup
+      rooturl=http://ftp.drupal.org/files/projects/
+      desiredModule[0]=security_review-7.x-1.2.zip
+      desiredModule[1]=r4032login-7.x-1.8.zip
+      desiredModule[2]=missing_module-7.x-1.0.zip
+      desiredModule[3]=advagg-7.x-2.17.zip
+      desiredModule[4]=httprl-7.x-1.14.zip
+      desiredModule[5]=expire-7.x-2.0-rc4.zip
+      desiredModule[6]=entitycache-7.x-1.5.zip
+      desiredModule[7]=shadow-7.x-1.0-beta3.zip
+      desiredModule[8]=views-7.x-3.13.zip
+      desiredModule[9]=ctools-7.x-1.9.zip
+      desiredModule[10]=advanced_help-7.x-1.3.zip
+      desiredModule[11]=pasc-7.x-1.0-beta1.zip
+      desiredModule[12]=checklistapi-7.x-1.2.zip
+      desiredModule[13]=redis-7.x-3.11.zip
+      desiredModule[14]=varnish-7.x-1.0-beta3.zip
+      
       echo -e "${tools}${Cyan}      Installing Predis Redis Client Library ...${no_color}"
       wget https://github.com/nrk/predis/archive/v1.0.3.zip -nv -O ./bluezone/predis.zip
       unzip -o ./bluezone/predis.zip -d ./htdocs/drupal-7.41/sites/all/libraries > /dev/null 2>&1
@@ -71,66 +91,17 @@ stages:
       wget http://ftp.drupal.org/files/projects/corporateclean-7.x-2.3.zip -nv -O ./bluezone/corpclean.zip
       unzip -o ./bluezone/corpclean.zip -d ./htdocs/drupal-7.41/sites/all/themes > /dev/null 2>&1
       
-      echo -e "${tools}${Cyan}      Installing Security Review Module ...${no_color}"
-      wget http://ftp.drupal.org/files/projects/security_review-7.x-1.2.zip -nv -O ./bluezone/securityreview.zip
-      unzip -o ./bluezone/securityreview.zip -d ./htdocs/drupal-7.41/sites/all/modules/contrib > /dev/null 2>&1
-      
-      echo -e "${tools}${Cyan}      Installing 403 Redirect Module ...${no_color}"
-      wget http://ftp.drupal.org/files/projects/r4032login-7.x-1.8.zip -nv -O ./bluezone/r4032login.zip
-      unzip -o ./bluezone/r4032login.zip -d ./htdocs/drupal-7.41/sites/all/modules/contrib > /dev/null 2>&1
-      
-      
-      echo -e "${tools}${Cyan}      Installing Missing Module ...${no_color}"
-      wget http://ftp.drupal.org/files/projects/missing_module-7.x-1.0.zip -nv -O ./bluezone/missing.zip
-      unzip -o ./bluezone/missing.zip -d ./htdocs/drupal-7.41/sites/all/modules/contrib > /dev/null 2>&1
-            
-      echo -e "${tools}${Cyan}      Installing Advanced CSS/JS Aggregation Module ...${no_color}"
-      wget http://ftp.drupal.org/files/projects/advagg-7.x-2.17.zip -nv -O ./bluezone/advagg.zip
-      unzip -o ./bluezone/advagg.zip -d ./htdocs/drupal-7.41/sites/all/modules/contrib > /dev/null 2>&1
-            
-      echo -e "${tools}${Cyan}      Installing HTTP Parallel Request & Threading Library Module ...${no_color}"
-      wget http://ftp.drupal.org/files/projects/httprl-7.x-1.14.zip -nv -O ./bluezone/httprl.zip
-      unzip -o ./bluezone/httprl.zip -d ./htdocs/drupal-7.41/sites/all/modules/contrib > /dev/null 2>&1
-            
-      echo -e "${tools}${Cyan}      Installing Cache Expiration Module ...${no_color}"
-      wget http://ftp.drupal.org/files/projects/expire-7.x-2.0-rc4.zip -nv -O ./bluezone/expire.zip
-      unzip -o ./bluezone/expire.zip -d ./htdocs/drupal-7.41/sites/all/modules/contrib > /dev/null 2>&1
-            
-      echo -e "${tools}${Cyan}      Installing Entity Cache Module ...${no_color}"
-      wget http://ftp.drupal.org/files/projects/entitycache-7.x-1.5.zip -nv -O ./bluezone/entitycache.zip
-      unzip -o ./bluezone/entitycache.zip -d ./htdocs/drupal-7.41/sites/all/modules/contrib > /dev/null 2>&1
-            
-      echo -e "${tools}${Cyan}      Installing Shadow SQL Optimization Module ...${no_color}"
-      wget http://ftp.drupal.org/files/projects/shadow-7.x-1.0-beta3.zip -nv -O ./bluezone/shadow.zip
-      unzip -o ./bluezone/shadow.zip -d ./htdocs/drupal-7.41/sites/all/modules/contrib > /dev/null 2>&1
-      
-      echo -e "${tools}${Cyan}      Installing Views Module ...${no_color}"
-      wget http://ftp.drupal.org/files/projects/views-7.x-3.13.zip -nv -O ./bluezone/views.zip
-      unzip -o ./bluezone/views.zip -d ./htdocs/drupal-7.41/sites/all/modules/contrib > /dev/null 2>&1
-      
-      echo -e "${tools}${Cyan}      Installing Advanced Help Module ...${no_color}"
-      wget http://ftp.drupal.org/files/projects/advanced_help-7.x-1.3.zip -nv -O ./bluezone/adhelp.zip
-      unzip -o ./bluezone/adhelp.zip -d ./htdocs/drupal-7.41/sites/all/modules/contrib > /dev/null 2>&1
-      
-      echo -e "${tools}${Cyan}      Installing Chaos Tool Suite Module ...${no_color}"
-      wget http://ftp.drupal.org/files/projects/ctools-7.x-1.9.zip -nv -O ./bluezone/ctools.zip
-      unzip -o ./bluezone/ctools.zip -d ./htdocs/drupal-7.41/sites/all/modules/contrib > /dev/null 2>&1
-            
-      echo -e "${tools}${Cyan}      Installing Performance and Scalability Checklist Module ...${no_color}"
-      wget http://ftp.drupal.org/files/projects/pasc-7.x-1.0-beta1.zip -nv -O ./bluezone/pasc.zip
-      unzip -o ./bluezone/pasc.zip -d ./htdocs/drupal-7.41/sites/all/modules/contrib > /dev/null 2>&1
-      
-      echo -e "${tools}${Cyan}      Installing ChecklistAPI Dependency Module ...${no_color}"
-      wget http://ftp.drupal.org/files/projects/checklistapi-7.x-1.2.zip -nv -O ./bluezone/checklistapi.zip
-      unzip -o ./bluezone/checklistapi.zip -d ./htdocs/drupal-7.41/sites/all/modules/contrib > /dev/null 2>&1
-      
-      echo -e "${tools}${Cyan}      Installing Redis Module ...${no_color}"
-      wget http://ftp.drupal.org/files/projects/redis-7.x-3.11.zip -nv -O ./bluezone/redis.zip
-      unzip -o ./bluezone/redis.zip -d ./htdocs/drupal-7.41/sites/all/modules/contrib > /dev/null 2>&1
-      
-      echo -e "${tools}${Cyan}      Installing Varnish Module ...${no_color}"
-      wget http://ftp.drupal.org/files/projects/varnish-7.x-1.0-beta3.zip -nv -O ./bluezone/varnish.zip
-      unzip -o ./bluezone/varnish.zip -d ./htdocs/drupal-7.41/sites/all/modules/contrib > /dev/null 2>&1
+      echo -e "${tools}${Cyan}      Installing Latest DKAN Module ...${no_color}"
+      wget https://api.github.com/repos/NuCivic/dkan/zipball/7.x-1.x -nv -O ./bluezone/dkanmod.zip
+      unzip -o ./bluezone/dkanmod.zip -d ./htdocs/drupal-7.41/sites/all/modules/contrib > /dev/null 2>&1
+
+      for (( i = 0 ; i < ${#desiredModule[@]} ; i++ )); do 
+        echo -e "${tools}${Cyan}      Installing ${desiredModule[$i]} Module ...${no_color}"
+        wget $rooturl/${desiredModule[$i]} -nv -O ./bluezone/${desiredModule[$i]}
+        unzip -o ./bluezone/${desiredModule[$i]} -d ./htdocs/drupal-7.41/sites/all/modules/contrib > /dev/null 2>&1
+      done 
+      unset desiredModule 
+      unset rooturl
       
       echo -e "${tools}${Red}      Patching Varnish Module to fix theme_hook_original on port bug ...${no_color}"
       echo -e "${tools}${Yellow}      Reference: https://www.drupal.org/node/2371907#comment-9468011 ${no_color}"
@@ -138,14 +109,14 @@ stages:
       patch -d ./htdocs/drupal-7.41/sites/all/modules/contrib/varnish < ./varnish-2371907-24.patch
       rm varnish-2371907-24.patch
       
-      echo -e "${tools}${Cyan}    Setting up user provided modules ...${no_color}"
+      echo -e "${tools}${Cyan}    Setting up user provided libraries ...${no_color}"
       for f in ./bluezone/configtweaks/libraries/*; do
           if [ -d ${f} ]; then
               # Will not run if no directories are available
-              echo -e "${harpoons}${Cyan}      Installing ${f} User-Provided Module ...${no_color}"
+              echo -e "${harpoons}${Cyan}      Installing ${f} User-Provided libraries ...${no_color}"
               mv $f ./htdocs/drupal-7.41/sites/all/libraries
           else
-              echo -e "${fail}${Cyan}      No User-Provided Modules detected...${no_color}"
+              echo -e "${fail}${Cyan}      No User-Provided libraries detected...${no_color}"
           fi
       done
       

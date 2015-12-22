@@ -20,41 +20,49 @@ present='\xF0\x9F\x8E\x81'
 #############
 export DRUPAL_DOMAIN_NAME="$(python $HOME/.profile.d/app_uri.py)"
 echo ""
-echo -e "${cloud}${Cyan}  Evaluated deployed application URI is ${Yellow}${DRUPAL_DOMAIN_NAME}${no_color}"
-if [ -z "$SSHFS_ADDRESS" ]; then
-  echo -e "${delivery}${Yellow}  Detected SSHFS Environment Variables ...{$no_color}"
-  echo -e "${delivery}${Yellow}  Temporarily renaming assembled sites folder ...{$no_color}"
+echo -e "${cloud}${Cyan}  Evaluated deployed application URI is ${Yellow}${DRUPAL_DOMAIN_NAME}"
+if [ -n "${SSHFS_PRIV+set}" ]; then
+  echo -e "${delivery}${Yellow}  Detected SSHFS Environment Variables ..."
+  echo -e "${delivery}${Yellow}  Temporarily renaming assembled sites folder ..."
   mv /home/vcap/app/htdocs/drupal-7.41/sites /home/vcap/app/htdocs/drupal-7.41/mirage
-  echo -e "${delivery}${Yellow}  Reading SSHFS mount environment variables ...{$no_color}"
-  echo -e "${delivery}${Yellow}    Persisting Provided Public Key to file id_rsa.pub ...{$no_color}"
-  echo "$SSHFS_PUBLIC" > "/home/vcap/app/.profile.d/id_rsa.pub"
-  echo -e "${delivery}${Yellow}    Persisting Provided Private Key to file id_rsa ...{$no_color}"
+  echo -e "${delivery}${Yellow}  Reading SSHFS mount environment variables ..."
+  echo -e "${delivery}${Yellow}    Persisting Provided Private Key to file id_rsa ..."
   echo "$SSHFS_PRIV" > "/home/vcap/app/.profile.d/id_rsa"
-  echo -e "${delivery}${Yellow}    Persisting Provided known_hosts to file known_hosts ...{$no_color}"
-  echo "$SSHFS_KNOWNHOSTS" > "/home/vcap/app/.profile.d/known_hosts"
-  echo -e "${delivery}${Yellow}    Securing files from Man-In-The-Middle Attacks ...{$no_color}"
+  echo -e "${delivery}${Yellow}    Securing IdentityFile from Man-In-The-Middle Attacks ..."
   chmod 600 /home/vcap/app/.profile.d/id_rsa
-  chmod 600 /home/vcap/app/.profile.d/id_rsa.pub
-  chmod 600 /home/vcap/app/.profile.d/known_hosts
-  echo -e "${delivery}${Yellow}    Creating mount location ...{$no_color}"
+  echo -e "${delivery}${Yellow}    Adding the key to the ssh-agent ..."
+  eval $(ssh-agent)
+  ssh-add /home/vcap/app/.profile.d/id_rsa
+  echo -e "${delivery}${Yellow}    Generating known_hosts file ..."
+  ssh-keyscan -t RSA -H ${SSHFS_HOST} > "/home/vcap/app/.profile.d/known_hosts"
+  echo -e "${delivery}${Yellow}    Creating mount location ..."
   mkdir -p /home/vcap/misc
-  echo -e "${delivery}${Yellow}  Initiating SSHFS mount ...{$no_color}"
-  sshfs ${SSHFS_ADDRESS} /home/vcap/misc -o IdentityFile=/home/vcap/app/.profile.d/id_rsa,StrictHostKeyChecking=yes,UserKnownHostsFile=/home/vcap/app/.profile.d/known_hosts,idmap=user,compression=no
-  echo -e "${delivery}${Yellow}  Creating Domain Namespace within mounted location ...{$no_color}"
+  echo -e "${delivery}${Yellow}  Initiating SSHFS mount ..."
+  # Reference: http://manpages.ubuntu.com/manpages/karmic/en/man1/sshfs.1.html
+  sshfs ${SSHFS_USER}@${SSHFS_HOST}:${SSHFS_DIR} /home/vcap/misc -o IdentityFile=/home/vcap/app/.profile.d/id_rsa,StrictHostKeyChecking=yes,UserKnownHostsFile=/home/vcap/app/.profile.d/known_hosts,idmap=user,compression=no
+  echo -e "${delivery}${Yellow}  Creating Domain Namespace within mounted location ..."
   mkdir -p /home/vcap/misc/${DRUPAL_DOMAIN_NAME}
-  echo -e "${delivery}${Yellow}  Creating Symlink between Drupal Sites folder and mounted location ...{$no_color}"
-  ln -s /home/vcap/misc/${DRUPAL_DOMAIN_NAME} /home/vcap/app/htdocs/drupal-7.41/sites
-  echo -e "${delivery}${Yellow}  Moving previously assembled sites folder content back ...{$no_color}"
-  mv /home/vcap/app/htdocs/drupal-7.41/mirage/* /home/vcap/app/htdocs/drupal-7.41/sites/*
+  mkdir -p /home/vcap/misc/${DRUPAL_DOMAIN_NAME}/sites
+  echo -e "${delivery}${Yellow}  Creating Symlink between Drupal Sites folder and mounted location ..."
+  ln -s /home/vcap/misc/${DRUPAL_DOMAIN_NAME}/sites /home/vcap/app/htdocs/drupal-7.41
+  echo -e "${delivery}${Yellow}  Moving previously assembled sites folder content onto SSHFS mount (Overwrite enabled)..."
+  yes | cp -R /home/vcap/app/htdocs/drupal-7.41/mirage/. /home/vcap/app/htdocs/drupal-7.41/sites
   rm -rf /home/vcap/app/htdocs/drupal-7.41/mirage
-  touch /home/vcap/app/htdocs/drupal-7.41/sites/foo.man.txt
-  ls -al /home/vcap/app/htdocs/drupal-7.41/sites
+  echo -e "${delivery}${Yellow}  Per best practices - Create Domain specific sites folder"
+  mkdir /home/vcap/app/htdocs/drupal-7.41/sites/${DRUPAL_DOMAIN_NAME}
+  mkdir /home/vcap/app/htdocs/drupal-7.41/sites/${DRUPAL_DOMAIN_NAME}/themes
+  mkdir /home/vcap/app/htdocs/drupal-7.41/sites/${DRUPAL_DOMAIN_NAME}/tmp
+  mkdir /home/vcap/app/htdocs/drupal-7.41/sites/${DRUPAL_DOMAIN_NAME}/files
+  mkdir /home/vcap/app/htdocs/drupal-7.41/sites/${DRUPAL_DOMAIN_NAME}/modules
+  mkdir /home/vcap/app/htdocs/drupal-7.41/sites/${DRUPAL_DOMAIN_NAME}/libraries
+  touch /home/vcap/app/htdocs/drupal-7.41/sites/${DRUPAL_DOMAIN_NAME}/settings.php
 else
-  echo -e "${delivery}${Yellow}  No SSHFS Environment Variables detected. Proceeding with local ephemeral sites folder.{$no_color}"
+  echo -e "${delivery}${Yellow}  No SSHFS Environment Variables detected. Proceeding with local ephemeral sites folder."
 fi
 
-
+# Reference Commands
+# How to generate a key-pair with no passphrase in a single command
 # ssh-keygen -b 2048 -t rsa -f /home/vcap/app/.profile.d/sshkey -q -N ""
-# ssh-keyscan 134.168.17.44 >> ~/.ssh/known_hosts
 # Command below uses debug options which causes process to run in foreground ... good for debugging but not useful for running with cf apps.
 # sshfs root@134.168.17.44:/home/paramount /home/vcap/misc -o IdentityFile=/home/vcap/app/.profile.d/id_rsa,StrictHostKeyChecking=yes,UserKnownHostsFile=/home/vcap/app/.profile.d/known_hosts,idmap=user,compression=no,sshfs_debug,debug
+

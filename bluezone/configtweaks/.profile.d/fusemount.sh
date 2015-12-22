@@ -49,6 +49,7 @@ if [ -n "${SSHFS_PRIV+set}" ]; then
   yes | cp -R /home/vcap/app/htdocs/drupal-7.41/mirage/. /home/vcap/app/htdocs/drupal-7.41/sites
   rm -rf /home/vcap/app/htdocs/drupal-7.41/mirage
   echo -e "${delivery}${Yellow}  Per best practices - Create Domain specific sites folder"
+  # Reference: https://www.drupal.org/node/53705
   mkdir /home/vcap/app/htdocs/drupal-7.41/sites/${DRUPAL_DOMAIN_NAME}
   mkdir /home/vcap/app/htdocs/drupal-7.41/sites/${DRUPAL_DOMAIN_NAME}/themes
   mkdir /home/vcap/app/htdocs/drupal-7.41/sites/${DRUPAL_DOMAIN_NAME}/tmp

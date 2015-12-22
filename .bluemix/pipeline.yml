@@ -42,7 +42,7 @@ stages:
       echo ""
       echo -e "${cloud}${Cyan}  Let's setup Drupal for initial deployment${no_color}"
       echo -e "${tools}${Yellow}    Updating apt-get ...${no_color}"
-      # sudo apt-get update > /dev/null 2>&1
+      sudo apt-get update > /dev/null 2>&1
       # Install jq
       echo -e "${tools}${Yellow}    Installing jq for JSON parsing support...${no_color}"
       sudo apt-get --assume-yes install jq > /dev/null 2>&1
@@ -90,10 +90,6 @@ stages:
       wget http://ftp.drupal.org/files/projects/corporateclean-7.x-2.3.zip -nv -O ./bluezone/corpclean.zip
       unzip -o ./bluezone/corpclean.zip -d ./htdocs/drupal-7.41/sites/all/themes > /dev/null 2>&1
       
-      echo -e "${tools}${Cyan}      Installing Latest DKAN Module ...${no_color}"
-      wget https://api.github.com/repos/NuCivic/dkan/zipball/7.x-1.x -nv -O ./bluezone/dkanmod.zip
-      unzip -o ./bluezone/dkanmod.zip -d ./htdocs/drupal-7.41/sites/all/modules/contrib > /dev/null 2>&1
-
       for (( i = 0 ; i < ${#desiredModule[@]} ; i++ )); do 
         echo -e "${tools}${Cyan}      Installing ${desiredModule[$i]} Module ...${no_color}"
         wget $rooturl/${desiredModule[$i]} -nv -O ./bluezone/${desiredModule[$i]}
@@ -151,13 +147,10 @@ stages:
       
       # Organize the artifact structure to be CF PHP Buildpack friendly
       echo -e "${cloud}${Yellow}    Making artifacts CF PHP friendly ...${no_color}"
+      mv ./bluezone/configtweaks/.profile.d .
       mv ./bluezone/configtweaks/.bp-config .
       mkdir .extensions
       mv ./bluezone/configtweaks/.php-extensions .
-      
-      echo -e "${cloud}${Yellow}    Installing Loadtest verification token ...${no_color}"
-      echo -e "loaderio-a34735f2d043b82eb8a1105144b1ab99" > ./htdocs/drupal-7.41/loaderio-a34735f2d043b82eb8a1105144b1ab99.txt
-      
       # Organize the artifact structure to facilitate BMX deploy
       echo -e "${cloud}${Yellow}    Making drupal artifacts ${Cyan}Bluemix ${Yellow}friendly ...${no_color}"
       mv ./bluezone/configtweaks/.user.ini ./htdocs/drupal-7.41
@@ -228,8 +221,6 @@ stages:
       echo -e "  </FilesMatch>" >> ./htdocs/drupal-7.41/.htaccess
       echo -e "</ifModule>" >> ./htdocs/drupal-7.41/.htaccess
 
-      # mv ./bluezone/configtweaks/.htaccess ./htdocs/drupal-7.41
-      #
       # Embed config file if provided
       if [ -f "./bluezone/configtweaks/settings.php" ]; then
          echo -e "${tools}${Cyan}    Drupal Config file detected ...${no_color}"

@@ -18,7 +18,22 @@ Open source projects are awesome. PaaS CloudFoundry enabling of self-hosted open
   5.  Verification Point:  Your Bluemix dashboard should now show a drupaldb named PostGreSQL service.
 - Click the Deploy Button Above.  Verification Point:  Await success of all 4 steps on the deploy page.
 - You will now begin the web installer process by going to yourappname.bluemix.region.url/install.php . **IMPORTANT**: if you browse to the base url, you will encounter an error since the db remains unpopulated.  Complete the web installation process and your shiny new Drupal 7.x deploy is ready to go.
- 
+
+##### SSHFS Persisted Storage [Optional]
+- The deploy comes baked in with the smarts to mount to a SSH server of your choice to enable SSHFS remote file storage.  One approach is to instantiate a base docker container image within IBM containers that uses a mounted file volume.  Within this container, you could enable SSH and leverage the mounted volume as a remote file path within your cf Drupal deploy.  This has the added benefit of allowing clustered drupal deploys (each having their own Varnish front-end) based on a single set of site files.
+- To enable:
+  1.  Attach 4 User-Defined Environment Variables to your Drupalstart app
+      1.  ```cf set-env drupalstart SSHFS_USER <ssh username>```
+          Example:  cf set-env drupalstart SSHFS_USER root
+      2.  ```cf set-env drupalstart SSHFS_HOST <ssh IP or servername>```
+          Example:  cf set-env drupalstart SSHFS_HOST 134.99.99.99
+      3.  ```cf set-env drupalstart SSHFS_DIR </path/to/dir on remote>```
+          Example:  cf set-env drupalstart SSHFS_DIR /home/cooluser/drupalfiles
+      4.  ```cf set-env drupalstart SSHFS_PRIV "`cat </path/to/local/private/ssh/key>`"
+      
+      **Note:  First 3 can be done via the Bluemix GUI, however the private key entry must be provided via CF CLI in order to maintain line breaks.  For Step 4, pay careful attention to the double quotes and backticks within the command.  Both types of characters are required.
+
+##### Custom Settings File
 - [Optional] Site settings for Drupal 7 are persisted in a file named **settings.php** that we can pull down and persist back into the repository.  As an application running on a PaaS, the app's local file storage is ephemeral.  This step is completely optional, depending on whether you desire to update the settings.php file beyond its default settings.
   - Within the terminal, browse to the root dir of your local cloned IBM DevOps project repo (e.g.  git clone ::url to IBM DevOps project::) and execute a command similar to:
 ```

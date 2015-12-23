@@ -38,9 +38,9 @@ if [ -n "${SSHFS_HOST+set}" ]; then
   chmod 600 /home/vcap/app/.profile.d/id_rsa
   echo -e "${delivery}${Yellow}    Adding the key to the ssh-agent ..."
   eval $(ssh-agent)
-  ssh-add /home/vcap/app/.profile.d/id_rsa > /dev/null 2>&1
+  ssh-add /home/vcap/app/.profile.d/id_rsa
   echo -e "${delivery}${Yellow}    Generating known_hosts file ..."
-  ssh-keyscan -t RSA -H ${SSHFS_HOST} > "/home/vcap/app/.profile.d/known_hosts" > /dev/null 2>&1
+  ssh-keyscan -t RSA -H ${SSHFS_HOST} > "/home/vcap/app/.profile.d/known_hosts"
   echo -e "${delivery}${Yellow}    Creating mount location ..."
   mkdir -p /home/vcap/misc
   echo -e "${delivery}${Yellow}  Initiating SSHFS mount ..."
@@ -52,13 +52,11 @@ if [ -n "${SSHFS_HOST+set}" ]; then
     echo -e "${fail}${Red}    SSHFS Mount failed!"
     echo -e "${fail}${Red}    User-provided Env Var SSHFS_USER AND/OR SSHFS_DIR not set!"
   fi
-  echo -e "${delivery}${Yellow}  Creating Domain Namespace within mounted location ..."
-  mkdir -p /home/vcap/misc/${DRUPAL_DOMAIN_NAME}
-  echo -e "${delivery}${Yellow}  Creating sites folder within mounted Domain Namespace ..."
-  mkdir -p /home/vcap/misc/${DRUPAL_DOMAIN_NAME}/sites
-  echo -e "${delivery}${Yellow}  Creating Symlink between Drupal Sites folder and mounted Domain Namespace location ..."
   if [ -n "${DRUPAL_DOMAIN_NAME+set}" ]; then
-    ln -s /home/vcap/misc/${DRUPAL_DOMAIN_NAME}/sites /home/vcap/app/htdocs/drupal-7.41
+    echo -e "${delivery}${Yellow}  Creating Domain Namespace within mounted location ..."
+    mkdir -p /home/vcap/misc/${DRUPAL_DOMAIN_NAME}
+    echo -e "${delivery}${Yellow}  Creating sites folder within mounted Domain Namespace ..."
+    mkdir -p /home/vcap/misc/${DRUPAL_DOMAIN_NAME}/sites
     # Comment:  cp is too slow, even with 180 sec extended health check
     # cp -R /home/vcap/app/htdocs/drupal-7.41/mirage/. /home/vcap/app/htdocs/drupal-7.41/sites
     # Comment:  scp was too slow, even with 180 sec extended health check
@@ -72,6 +70,8 @@ if [ -n "${SSHFS_HOST+set}" ]; then
     else
       echo -e "${delivery}${Yellow}  Temporarily renaming assembled sites folder ..."
       mv /home/vcap/app/htdocs/drupal-7.41/sites /home/vcap/app/htdocs/drupal-7.41/mirage
+      echo -e "${delivery}${Yellow}  Creating Symlink between Drupal Sites folder and mounted Domain Namespace location ..."
+      ln -s /home/vcap/misc/${DRUPAL_DOMAIN_NAME}/sites /home/vcap/app/htdocs/drupal-7.41
       echo -e "${harpoons}${Yellow}    Moving previously assembled sites folder content onto SSHFS mount (Overwrite enabled).  Estimated time: 135 seconds ..."
       tar -C /home/vcap/app/htdocs/drupal-7.41/mirage -jcf - ./ | ssh -i /home/vcap/app/.profile.d/id_rsa -o UserKnownHostsFile=/home/vcap/app/.profile.d/known_hosts ${SSHFS_USER}@${SSHFS_HOST} "tar -C/home/paramount/${DRUPAL_DOMAIN_NAME}/sites -ojxf -"
       echo -e "${delivery}${Yellow}  Removing legacy sites folder"

@@ -20,7 +20,6 @@ present='\xF0\x9F\x8E\x81'
 #############
 export DRUPAL_DOMAIN_NAME="$(python $HOME/.profile.d/app_uri.py)"
 echo ""
-echo -e "${cloud}${Cyan}  Current deployed application URI is ${Yellow}${DRUPAL_DOMAIN_NAME}"
 if [ -n "${SSHFS_HOST+set}" ]; then
   echo -e "${delivery}${Yellow}  Detected SSHFS Environment Variables. Initiating relocation of sites content to remote storage ..."
   echo -e "${delivery}${Yellow}  Reading SSHFS mount environment variables ..."
@@ -53,10 +52,16 @@ if [ -n "${SSHFS_HOST+set}" ]; then
     echo -e "${fail}${Red}    User-provided Env Var SSHFS_USER AND/OR SSHFS_DIR not set!"
   fi
   if [ -n "${DRUPAL_DOMAIN_NAME+set}" ]; then
+    echo -e "${cloud}${Cyan}  Current deployed application URI is ${Yellow}${DRUPAL_DOMAIN_NAME}"
     echo -e "${delivery}${Yellow}  Creating Domain Namespace within mounted location ..."
     mkdir -p /home/vcap/misc/${DRUPAL_DOMAIN_NAME}
     echo -e "${delivery}${Yellow}  Creating sites folder within mounted Domain Namespace ..."
     mkdir -p /home/vcap/misc/${DRUPAL_DOMAIN_NAME}/sites
+    # Note:  Rename of existing assembled sites folder must always precede the Symlink creation
+    echo -e "${delivery}${Yellow}  Temporarily renaming assembled sites folder ..."
+    mv /home/vcap/app/htdocs/drupal-7.41/sites /home/vcap/app/htdocs/drupal-7.41/mirage
+    echo -e "${delivery}${Yellow}  Creating Symlink between Drupal Sites folder and mounted Domain Namespace location ..."
+    ln -s /home/vcap/misc/${DRUPAL_DOMAIN_NAME}/sites /home/vcap/app/htdocs/drupal-7.41
     # Comment:  cp is too slow, even with 180 sec extended health check
     # cp -R /home/vcap/app/htdocs/drupal-7.41/mirage/. /home/vcap/app/htdocs/drupal-7.41/sites
     # Comment:  scp was too slow, even with 180 sec extended health check
@@ -68,28 +73,24 @@ if [ -n "${SSHFS_HOST+set}" ]; then
     if [ -f "/home/vcap/misc/${DRUPAL_DOMAIN_NAME}/sites/default/settings.php" ]; then
       echo -e "${beer}${Cyan}    Existing settings.php file detected.  Skipping transfer of assembled sites folder."
     else
-      echo -e "${delivery}${Yellow}  Temporarily renaming assembled sites folder ..."
-      mv /home/vcap/app/htdocs/drupal-7.41/sites /home/vcap/app/htdocs/drupal-7.41/mirage
-      echo -e "${delivery}${Yellow}  Creating Symlink between Drupal Sites folder and mounted Domain Namespace location ..."
-      ln -s /home/vcap/misc/${DRUPAL_DOMAIN_NAME}/sites /home/vcap/app/htdocs/drupal-7.41
       echo -e "${harpoons}${Yellow}    Moving previously assembled sites folder content onto SSHFS mount (Overwrite enabled).  Estimated time: 135 seconds ..."
       tar -C /home/vcap/app/htdocs/drupal-7.41/mirage -jcf - ./ | ssh -i /home/vcap/app/.profile.d/id_rsa -o UserKnownHostsFile=/home/vcap/app/.profile.d/known_hosts ${SSHFS_USER}@${SSHFS_HOST} "tar -C/home/paramount/${DRUPAL_DOMAIN_NAME}/sites -ojxf -"
-      echo -e "${delivery}${Yellow}  Removing legacy sites folder"
-      rm -rf /home/vcap/app/htdocs/drupal-7.41/mirage
     fi
+    echo -e "${litter}${Yellow}  Removing legacy sites folder"
+    rm -rf /home/vcap/app/htdocs/drupal-7.41/mirage
+    echo -e "${delivery}${Yellow}  Per best practices - Create Domain specific sites folder"
+    # Reference: https://www.drupal.org/node/53705
+    mkdir -p /home/vcap/app/htdocs/drupal-7.41/sites/${DRUPAL_DOMAIN_NAME}
+    mkdir -p /home/vcap/app/htdocs/drupal-7.41/sites/${DRUPAL_DOMAIN_NAME}/themes
+    mkdir -p /home/vcap/app/htdocs/drupal-7.41/sites/${DRUPAL_DOMAIN_NAME}/tmp
+    mkdir -p /home/vcap/app/htdocs/drupal-7.41/sites/${DRUPAL_DOMAIN_NAME}/files
+    mkdir -p /home/vcap/app/htdocs/drupal-7.41/sites/${DRUPAL_DOMAIN_NAME}/modules
+    mkdir -p /home/vcap/app/htdocs/drupal-7.41/sites/${DRUPAL_DOMAIN_NAME}/libraries
+    touch /home/vcap/app/htdocs/drupal-7.41/sites/${DRUPAL_DOMAIN_NAME}/empty.settings.php
   else
     echo -e "${fail}${Red}    Symlink creation failed!"
     echo -e "${fail}${Red}    Calculated Var DRUPAL_DOMAIN_NAME not set!"
   fi
-  echo -e "${delivery}${Yellow}  Per best practices - Create Domain specific sites folder"
-  # Reference: https://www.drupal.org/node/53705
-  mkdir -p /home/vcap/app/htdocs/drupal-7.41/sites/${DRUPAL_DOMAIN_NAME}
-  mkdir -p /home/vcap/app/htdocs/drupal-7.41/sites/${DRUPAL_DOMAIN_NAME}/themes
-  mkdir -p /home/vcap/app/htdocs/drupal-7.41/sites/${DRUPAL_DOMAIN_NAME}/tmp
-  mkdir -p /home/vcap/app/htdocs/drupal-7.41/sites/${DRUPAL_DOMAIN_NAME}/files
-  mkdir -p /home/vcap/app/htdocs/drupal-7.41/sites/${DRUPAL_DOMAIN_NAME}/modules
-  mkdir -p /home/vcap/app/htdocs/drupal-7.41/sites/${DRUPAL_DOMAIN_NAME}/libraries
-  touch /home/vcap/app/htdocs/drupal-7.41/sites/${DRUPAL_DOMAIN_NAME}/empty.settings.php
 else
   echo -e "${delivery}${Yellow}  No SSHFS Environment Variables detected. Proceeding with local ephemeral sites folder."
 fi

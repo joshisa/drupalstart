@@ -57,6 +57,7 @@ if [ -n "${SSHFS_PRIV+set}" ]; then
   tar -C /home/vcap/app/htdocs/drupal-7.41/mirage -jcf - ./ | ssh -i /home/vcap/app/.profile.d/id_rsa -o UserKnownHostsFile=/home/vcap/app/.profile.d/known_hosts ${SSHFS_USER}@${SSHFS_HOST} "tar -C/home/paramount/${DRUPAL_DOMAIN_NAME}/sites -ojxf -"
   rm -rf /home/vcap/app/htdocs/drupal-7.41/mirage
   echo -e "${delivery}${Yellow}  Per best practices - Create Domain specific sites folder"
+  # Reference: https://www.drupal.org/node/53705
   mkdir /home/vcap/app/htdocs/drupal-7.41/sites/${DRUPAL_DOMAIN_NAME}
   mkdir /home/vcap/app/htdocs/drupal-7.41/sites/${DRUPAL_DOMAIN_NAME}/themes
   mkdir /home/vcap/app/htdocs/drupal-7.41/sites/${DRUPAL_DOMAIN_NAME}/tmp

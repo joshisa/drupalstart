@@ -23,15 +23,18 @@ Open source projects are awesome. PaaS CloudFoundry enabling of self-hosted open
 - The deploy comes baked in with the smarts to mount to a SSH server of your choice to enable SSHFS remote file storage.  One approach is to instantiate a base docker container image within IBM containers that uses a mounted file volume.  Within this container, you could enable SSH and leverage the mounted volume as a remote file path within your cf Drupal deploy.  This has the added benefit of allowing clustered drupal deploys (each having their own Varnish front-end) based on a single set of site files.
 - To enable:
   1.  Attach 4 User-Defined Environment Variables to your Drupalstart app
-      1.  ```cf set-env drupalstart SSHFS_USER <ssh username>```
+      1.  `cf set-env drupalstart SSHFS_USER <ssh username>`
+ 
           Example:  cf set-env drupalstart SSHFS_USER root
-      2.  ```cf set-env drupalstart SSHFS_HOST <ssh IP or servername>```
+      2.  `cf set-env drupalstart SSHFS_HOST <ssh IP or servername>`
+ 
           Example:  cf set-env drupalstart SSHFS_HOST 134.99.99.99
-      3.  ```cf set-env drupalstart SSHFS_DIR </path/to/dir on remote>```
+      3.  `cf set-env drupalstart SSHFS_DIR </path/to/dir on remote>`
+ 
           Example:  cf set-env drupalstart SSHFS_DIR /home/cooluser/drupalfiles
-      4.  ```cf set-env drupalstart SSHFS_PRIV "`cat </path/to/local/private/ssh/key>`"
+      4.  ``cf set-env drupalstart SSHFS_PRIV "`cat </path/to/local/private/ssh/key>`"``
       
-      **Note:  First 3 can be done via the Bluemix GUI, however the private key entry must be provided via CF CLI in order to maintain line breaks.  For Step 4, pay careful attention to the double quotes and backticks within the command.  Both types of characters are required.
+      **Note:  First 3 can also be done via the Bluemix GUI if you prefer, however the private key environment var must be generated via CF CLI in order to maintain line breaks.  Also, for Step 4 pay careful attention to the double quotes and backticks within the command.  Both sets of characters are required to encapsulate the cat command correctly.
 
 ##### Custom Settings File
 - [Optional] Site settings for Drupal 7 are persisted in a file named **settings.php** that we can pull down and persist back into the repository.  As an application running on a PaaS, the app's local file storage is ephemeral.  This step is completely optional, depending on whether you desire to update the settings.php file beyond its default settings.

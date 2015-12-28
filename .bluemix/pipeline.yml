@@ -84,6 +84,7 @@ stages:
       desiredModule[15]=cloudflare-7.x-1.0-beta4.zip
       desiredModule[16]=cdn-7.x-2.6.zip
       desiredModule[17]=pathauto-7.x-1.3.zip
+      desiredModule[18]=devel-7.x-1.5.zip
       
       echo -e "${tools}${Cyan}      Installing Predis Redis Client Library ...${no_color}"
       wget https://github.com/nrk/predis/archive/v1.0.3.zip -nv -O ./bluezone/predis.zip

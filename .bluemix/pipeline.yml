@@ -163,11 +163,17 @@ stages:
       echo -e "RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]" >> ./htdocs/drupal-7.41/.htaccess
       
       echo -e "" >> ./htdocs/drupal-7.41/.htaccess
+      echo -e "# Reference: https://www.drupal.org/node/287115#comment-936650" >> ./htdocs/drupal-7.41/.htaccess
+      echo -e "FileETag none" >> ./htdocs/drupal-7.41/.htaccess
       echo -e "# Enforces an Expires header for responses to content" >> ./htdocs/drupal-7.41/.htaccess
       echo -e "<ifmodule mod_expires.c>" >> ./htdocs/drupal-7.41/.htaccess
       echo -e "ExpiresActive On" >> ./htdocs/drupal-7.41/.htaccess
       echo -e "ExpiresDefault A0" >> ./htdocs/drupal-7.41/.htaccess
-      
+      echo -e "ExpiresByType application/x-javascript A1209600" >> ./htdocs/drupal-7.41/.htaccess
+      echo -e "ExpiresByType application/javascript A1209600" >> ./htdocs/drupal-7.41/.htaccess
+      echo -e "ExpiresByType text/javascript A1209600" >> ./htdocs/drupal-7.41/.htaccess
+      echo -e "ExpiresByType text/css A1209600" >> ./htdocs/drupal-7.41/.htaccess
+
       echo -e "# Set up caching on media files for 1 year (forever?)" >> ./htdocs/drupal-7.41/.htaccess
       echo -e "<FilesMatch \"\.(flv|ico|pdf|avi|mov|ppt|doc|mp3|wmv|wav)$\">" >> ./htdocs/drupal-7.41/.htaccess
       echo -e "    ExpiresDefault A29030400" >> ./htdocs/drupal-7.41/.htaccess

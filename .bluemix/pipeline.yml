@@ -81,6 +81,8 @@ stages:
       desiredModule[12]=checklistapi-7.x-1.2.zip
       desiredModule[13]=redis-7.x-3.11.zip
       desiredModule[14]=varnish-7.x-1.0-beta3.zip
+      desiredModule[15]=cloudflare-7.x-1.0-beta4.zip
+      desiredModule[16]=cdn-7.x-2.6.zip
       
       echo -e "${tools}${Cyan}      Installing Predis Redis Client Library ...${no_color}"
       wget https://github.com/nrk/predis/archive/v1.0.3.zip -nv -O ./bluezone/predis.zip
@@ -302,6 +304,9 @@ stages:
          echo -e "drupal_fast_404();" >> ./htdocs/drupal-7.41/sites/default/settings.php
          echo -e "\$conf['drupal_http_request_fails'] = FALSE;" >> ./htdocs/drupal-7.41/sites/default/settings.php
          echo -e "\$conf['allow_authorize_operations'] = FALSE;" >> ./htdocs/drupal-7.41/sites/default/settings.php
+         echo -e "if (isset(\$_SERVER['HTTP_CF_CONNECTING_IP'])) {" >> ./htdocs/drupal-7.41/sites/default/settings.php
+         echo -e "\$_SERVER['REMOTE_ADDR'] = \$_SERVER['HTTP_CF_CONNECTING_IP'];" >> ./htdocs/drupal-7.41/sites/default/settings.php
+         echo -e "}" >> ./htdocs/drupal-7.41/sites/default/settings.php
       fi
       
       # Cleaning up

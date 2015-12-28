@@ -42,7 +42,7 @@ backend default {
     .port = "8080";
     .probe = { 
       .request =
-        "OPTIONS * HTTP/1.1"
+        "HEAD * HTTP/1.1"
         "Host: localhost"
         "Connection: close"
         "User-Agent: Varnish Health Probe";
@@ -50,10 +50,11 @@ backend default {
       .interval = 1s; 
       .window = 10;
       .threshold = 8;
+      .expected_response = 301;
     }
     .first_byte_timeout     = 300s;   # How long to wait before we receive a first byte from our backend?
-    .connect_timeout        = 5s;     # How long to wait for a backend connection?
-    .between_bytes_timeout  = 2s;     # How long to wait between bytes received from our backend?
+    .connect_timeout        = 10s;     # How long to wait for a backend connection?
+    .between_bytes_timeout  = 10s;     # How long to wait between bytes received from our backend?
 }
 
 # Respond to incoming requests.

@@ -6,7 +6,9 @@ applications:
   path: .
   stack: cflinuxfs2
   buildpack: https://github.com/chregu/cf-php-varnish-buildpack
-  services:
-  -  drupaldb
   env:
     VARNISH_MEMORY_LIMIT: 2G
+  services:
+  -  drupaldb
+  -  drupalredis
+  -  sendmail

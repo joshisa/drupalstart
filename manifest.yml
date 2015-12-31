@@ -8,8 +8,7 @@ applications:
   buildpack: https://github.com/chregu/cf-php-varnish-buildpack
   env:
     VARNISH_MEMORY_LIMIT: 1G
-    SSHFS_NAMESPACE: 'drupal.on.ibm.bluemix'
-    SSHFS_FIRSTSETUP: 'no'
+    SSHFS_NAMESPACE: "drupal.on.ibm.bluemix"
   services:
   -  drupaldb
   -  drupalredis

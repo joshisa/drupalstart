@@ -78,15 +78,6 @@ if [ -n "${SSHFS_HOST+set}" ]; then
     fi
     echo -e "${litter}${Yellow}  Removing legacy sites folder"
     rm -rf /home/vcap/app/htdocs/drupal-7.41/mirage
-    echo -e "${delivery}${Yellow}  Per best practices - Create Domain specific sites folder"
-    # Reference: https://www.drupal.org/node/53705
-    mkdir -p /home/vcap/app/htdocs/drupal-7.41/sites/${DRUPAL_DOMAIN_NAME}
-    mkdir -p /home/vcap/app/htdocs/drupal-7.41/sites/${DRUPAL_DOMAIN_NAME}/themes
-    mkdir -p /home/vcap/app/htdocs/drupal-7.41/sites/${DRUPAL_DOMAIN_NAME}/tmp
-    mkdir -p /home/vcap/app/htdocs/drupal-7.41/sites/${DRUPAL_DOMAIN_NAME}/files
-    mkdir -p /home/vcap/app/htdocs/drupal-7.41/sites/${DRUPAL_DOMAIN_NAME}/modules
-    mkdir -p /home/vcap/app/htdocs/drupal-7.41/sites/${DRUPAL_DOMAIN_NAME}/libraries
-    touch /home/vcap/app/htdocs/drupal-7.41/sites/${DRUPAL_DOMAIN_NAME}/empty.settings.php
   else
     echo -e "${fail}${Red}    Symlink creation failed!"
     echo -e "${fail}${Red}    Calculated Var DRUPAL_DOMAIN_NAME not set!"

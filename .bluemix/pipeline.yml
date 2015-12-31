@@ -95,14 +95,14 @@ stages:
       desiredModule[20]=r4032login-7.x-1.8.zip
       desiredModule[21]=missing_module-7.x-1.0.zip
       desiredModule[22]=login_security-7.x-1.9.zip
-      desiredModule[25]=flood_control-7.x-1.0.zip
-      desiredModule[26]=seckit-7.x-1.9.zip
-      desiredModule[27]=autologout-7.x-4.4.zip
+      desiredModule[23]=flood_control-7.x-1.0.zip
+      desiredModule[24]=seckit-7.x-1.9.zip
+      desiredModule[25]=autologout-7.x-4.4.zip
       # Twilio SMS Support
-      desiredModule[28]=libraries-7.x-2.2.zip
-      desiredModule[29]=twilio-7.x-1.11.zip
+      desiredModule[26]=libraries-7.x-2.2.zip
+      desiredModule[27]=twilio-7.x-1.11.zip
       # Piwik Support
-      desiredModule[30]=piwik-7.x-2.7.zip
+      desiredModule[28]=piwik-7.x-2.7.zip
       
       echo -e "${tools}${Cyan}      Installing Predis Redis Client Library ...${no_color}"
       wget https://github.com/nrk/predis/archive/v1.0.3.zip -nv -O ./bluezone/predis.zip

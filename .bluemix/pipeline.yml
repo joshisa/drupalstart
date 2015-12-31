@@ -69,7 +69,7 @@ stages:
       desiredModule[0]=security_review-7.x-1.2.zip
       desiredModule[1]=r4032login-7.x-1.8.zip
       desiredModule[2]=missing_module-7.x-1.0.zip
-      desiredModule[3]=advagg-7.x-2.17.zip
+      desiredModule[3]=devel-7.x-1.5.zip
       desiredModule[4]=httprl-7.x-1.14.zip
       desiredModule[5]=expire-7.x-2.0-rc4.zip
       desiredModule[6]=entitycache-7.x-1.5.zip
@@ -80,15 +80,31 @@ stages:
       desiredModule[11]=pasc-7.x-1.0-beta1.zip
       desiredModule[12]=checklistapi-7.x-1.2.zip
       desiredModule[13]=redis-7.x-3.11.zip
+      # Reverse Proxy
       desiredModule[14]=varnish-7.x-1.0-beta3.zip
+      # SPAM Control
       desiredModule[15]=cloudflare-7.x-1.0-beta4.zip
-      desiredModule[16]=cdn-7.x-2.6.zip
-      desiredModule[17]=pathauto-7.x-1.3.zip
-      desiredModule[18]=devel-7.x-1.5.zip
+      # SMTP Support
+      desiredModule[16]=smtp-7.x-1.3.zip
+      # Improved Security
+      desiredModule[17]=login_security-7.x-1.9.zip
+      desiredModule[18]=password_policy-7.x-1.12.zip
+      desiredModule[19]=captcha-7.x-1.3.zip
+      desiredModule[20]=flood_control-7.x-1.0.zip
+      desiredModule[21]=seckit-7.x-1.9.zip
+      desiredModule[22]=autologout-7.x-4.4.zip
+      # Twilio SMS Support
+      desiredModule[23]=libraries-7.x-2.2.zip
+      desiredModule[24]=twilio-7.x-1.11.zip
       
       echo -e "${tools}${Cyan}      Installing Predis Redis Client Library ...${no_color}"
       wget https://github.com/nrk/predis/archive/v1.0.3.zip -nv -O ./bluezone/predis.zip
       unzip -o ./bluezone/predis.zip -d ./htdocs/drupal-7.41/sites/all/libraries > /dev/null 2>&1
+      
+      echo -e "${tools}${Cyan}      Installing Twilio PHP Library ...${no_color}"
+      wget https://github.com/twilio/twilio-php/archive/master.zip -nv -O ./bluezone/twilio.zip
+      unzip -o ./bluezone/twilio.zip -d ./htdocs/drupal-7.41/sites/all/libraries > /dev/null 2>&1
+      mv ./htdocs/drupal-7.41/sites/all/libraries/twilio-php-master ./htdocs/drupal-7.41/sites/all/libraries/twilio
       
       echo -e "${tools}${Cyan}      Installing CorporateClean Theme ...${no_color}"
       wget http://ftp.drupal.org/files/projects/corporateclean-7.x-2.3.zip -nv -O ./bluezone/corpclean.zip
@@ -172,12 +188,12 @@ stages:
       echo -e "# Enforces an Expires header for responses to content" >> ./htdocs/drupal-7.41/.htaccess
       echo -e "<ifmodule mod_expires.c>" >> ./htdocs/drupal-7.41/.htaccess
       echo -e "ExpiresActive On" >> ./htdocs/drupal-7.41/.htaccess
-      echo -e "ExpiresDefault A1" >> ./htdocs/drupal-7.41/.htaccess
-      echo -e "ExpiresByType application/x-javascript A1209600" >> ./htdocs/drupal-7.41/.htaccess
-      echo -e "ExpiresByType application/javascript A1209600" >> ./htdocs/drupal-7.41/.htaccess
-      echo -e "ExpiresByType text/javascript A1209600" >> ./htdocs/drupal-7.41/.htaccess
-      echo -e "ExpiresByType text/css A1209600" >> ./htdocs/drupal-7.41/.htaccess
-
+      echo -e "ExpiresDefault A0" >> ./htdocs/drupal-7.41/.htaccess
+      echo -e "ExpiresByType application/x-javascript \"access plus 2 years\"" >> ./htdocs/drupal-7.41/.htaccess
+      echo -e "ExpiresByType application/javascript \"access plus 2 years\"" >> ./htdocs/drupal-7.41/.htaccess
+      echo -e "ExpiresByType text/javascript \"access plus 2 years\"" >> ./htdocs/drupal-7.41/.htaccess
+      echo -e "ExpiresByType text/css \"access plus 2 years\"" >> ./htdocs/drupal-7.41/.htaccess
+      
       echo -e "# Set up caching on media files for 1 year (forever?)" >> ./htdocs/drupal-7.41/.htaccess
       echo -e "<FilesMatch \"\.(flv|ico|pdf|avi|mov|ppt|doc|mp3|wmv|wav)$\">" >> ./htdocs/drupal-7.41/.htaccess
       echo -e "    ExpiresDefault A29030400" >> ./htdocs/drupal-7.41/.htaccess
@@ -190,6 +206,11 @@ stages:
       
       echo -e "# Set up 2 week caching on commonly updated files" >> ./htdocs/drupal-7.41/.htaccess
       echo -e "<FilesMatch \"\.(xml|txt|html|js|css)$\">" >> ./htdocs/drupal-7.41/.htaccess
+      echo -e "    ExpiresDefault A1209600" >> ./htdocs/drupal-7.41/.htaccess
+      echo -e "</Filesmatch>" >> ./htdocs/drupal-7.41/.htaccess
+      
+      echo -e "# Set up 2 week caching on commonly updated files" >> ./htdocs/drupal-7.41/.htaccess
+      echo -e "<FilesMatch \"^(j|cs)s_[0-9a-f]{32}_.+\.(j|cs)s(\.gz)?\">" >> ./htdocs/drupal-7.41/.htaccess
       echo -e "    ExpiresDefault A1209600" >> ./htdocs/drupal-7.41/.htaccess
       echo -e "</Filesmatch>" >> ./htdocs/drupal-7.41/.htaccess
       
@@ -230,7 +251,7 @@ stages:
       echo -e "    SetOutputFilter DEFLATE" >> ./htdocs/drupal-7.41/.htaccess
       echo -e "  </FilesMatch>" >> ./htdocs/drupal-7.41/.htaccess
       echo -e "</ifModule>" >> ./htdocs/drupal-7.41/.htaccess
-
+      
       # Embed config file if provided
       if [ -f "./bluezone/configtweaks/settings.php" ]; then
          echo -e "${tools}${Cyan}    Drupal Config file detected ...${no_color}"
@@ -247,17 +268,33 @@ stages:
          echo -e "\$services_json = json_decode(\$services,true);" >> ./htdocs/drupal-7.41/sites/default/settings.php
          echo -e "if (isset(\$services_json)) {" >> ./htdocs/drupal-7.41/sites/default/settings.php
          echo -e "  if (isset(\$services_json[\"user-provided\"])) {" >> ./htdocs/drupal-7.41/sites/default/settings.php
-         echo -e "     foreach(\$services_json[\"user-provided\"] as \$item) {" >> ./htdocs/drupal-7.41/sites/default/settings.php
-         echo -e "       if (\$item[\"name\"] == \"drupaldb\") {" >> ./htdocs/drupal-7.41/sites/default/settings.php
+         echo -e "    foreach(\$services_json[\"user-provided\"] as \$item) {" >> ./htdocs/drupal-7.41/sites/default/settings.php
+         echo -e "      if (\$item[\"name\"] == \"drupaldb\") {" >> ./htdocs/drupal-7.41/sites/default/settings.php
          echo -e "         \$postgres_config = \$item[\"credentials\"];" >> ./htdocs/drupal-7.41/sites/default/settings.php
          echo -e "         list(\$hostname, \$port) = explode(':', \$postgres_config[\"public_hostname\"]);" >> ./htdocs/drupal-7.41/sites/default/settings.php
          echo -e "         \$dbname = 'compose';" >> ./htdocs/drupal-7.41/sites/default/settings.php
-         echo -e "       } elseif (\$item[\"name\"] == \"drupalredis\") {" >> ./htdocs/drupal-7.41/sites/default/settings.php
+         echo -e "      } elseif (\$item[\"name\"] == \"drupalredis\") {" >> ./htdocs/drupal-7.41/sites/default/settings.php
          echo -e "         \$redis_config = \$item[\"credentials\"];" >> ./htdocs/drupal-7.41/sites/default/settings.php
          echo -e "         list(\$rhostname, \$rport) = explode(':', \$redis_config[\"public_hostname\"]);" >> ./htdocs/drupal-7.41/sites/default/settings.php
-         echo -e "       }" >> ./htdocs/drupal-7.41/sites/default/settings.php
-         echo -e "     }" >> ./htdocs/drupal-7.41/sites/default/settings.php
-         echo -e "   }" >> ./htdocs/drupal-7.41/sites/default/settings.php
+         echo -e "      } elseif (\$item[\"name\"] == \"sendsms\") {" >> ./htdocs/drupal-7.41/sites/default/settings.php
+         echo -e "         \$twilio_config = \$item[\"credentials\"];" >> ./htdocs/drupal-7.41/sites/default/settings.php
+         echo -e "         \$conf['twiliophp_account_sid'] = \$twilio_config[\"accountSID\"];" >> ./htdocs/drupal-7.41/sites/default/settings.php
+         echo -e "         \$conf['twiliophp_auth_token'] = \$twilio_config[\"authToken\"];" >> ./htdocs/drupal-7.41/sites/default/settings.php
+         echo -e "      }" >> ./htdocs/drupal-7.41/sites/default/settings.php
+         echo -e "    }" >> ./htdocs/drupal-7.41/sites/default/settings.php
+         echo -e "  }" >> ./htdocs/drupal-7.41/sites/default/settings.php
+         echo -e "  if (isset(\$services_json[\"sendgrid\"])) {" >> ./htdocs/drupal-7.41/sites/default/settings.php
+         echo -e "    \$sendgrid_config = \$services_json[\"sendgrid\"][0][\"credentials\"];" >> ./htdocs/drupal-7.41/sites/default/settings.php
+         echo -e "    # Useful for Sendgrid SMTP Support" >> ./htdocs/drupal-7.41/sites/default/settings.php
+         echo -e "    \$conf['mail_system']['default-system'] = 'SmtpMailSystem';" >> ./htdocs/drupal-7.41/sites/default/settings.php
+         echo -e "    \$conf['smtp_on'] = TRUE;" >> ./htdocs/drupal-7.41/sites/default/settings.php
+         echo -e "    \$conf['smtp_host'] = \$sendgrid_config[\"hostname\"];" >> ./htdocs/drupal-7.41/sites/default/settings.php
+         echo -e "    \$conf['smtp_port'] = 587;" >> ./htdocs/drupal-7.41/sites/default/settings.php
+         echo -e "    \$conf['smtp_username'] = \$sendgrid_config[\"username\"];" >> ./htdocs/drupal-7.41/sites/default/settings.php
+         echo -e "    \$conf['smtp_password'] = \$sendgrid_config[\"password\"];" >> ./htdocs/drupal-7.41/sites/default/settings.php
+         echo -e "    \$conf['smtp_from'] = 'unmonitored-app-message-do-not-reply@myapp.mybluemix.net';" >> ./htdocs/drupal-7.41/sites/default/settings.php
+         echo -e "    \$conf['smtp_fromname'] = 'Bluemix Drupal Deploy';" >> ./htdocs/drupal-7.41/sites/default/settings.php
+         echo -e "  }" >> ./htdocs/drupal-7.41/sites/default/settings.php
          echo -e "}" >> ./htdocs/drupal-7.41/sites/default/settings.php
          echo -e "\$databases = array (" >> ./htdocs/drupal-7.41/sites/default/settings.php
          echo -e "  'default' =>" >> ./htdocs/drupal-7.41/sites/default/settings.php
@@ -278,7 +315,7 @@ stages:
          # Useful only if Redis Caching is desired
          # Reference: http://dropbucket.org/node/242
          # Reference: https://redislabs.com/drupal-redis
-         echo -e "/*" >> ./htdocs/drupal-7.41/sites/default/settings.php
+         # echo -e "/*" >> ./htdocs/drupal-7.41/sites/default/settings.php
          echo -e "// Setup Redis Cache for Drupal if service is available" >> ./htdocs/drupal-7.41/sites/default/settings.php
          echo -e "define('PREDIS_BASE_PATH', DRUPAL_ROOT . '/sites/all/libraries/predis-1.0.3/');" >> ./htdocs/drupal-7.41/sites/default/settings.php
          echo -e "\$conf['redis_client_interface'] = 'Predis';" >> ./htdocs/drupal-7.41/sites/default/settings.php
@@ -288,7 +325,7 @@ stages:
          echo -e "\$conf['lock_inc'] = 'sites/all/modules/contrib/redis/redis.lock.inc';" >> ./htdocs/drupal-7.41/sites/default/settings.php
          echo -e "\$conf['cache_backends'][] = 'sites/all/modules/contrib/redis/redis.autoload.inc';" >> ./htdocs/drupal-7.41/sites/default/settings.php
          echo -e "\$conf['cache_default_class'] = 'Redis_Cache';" >> ./htdocs/drupal-7.41/sites/default/settings.php 
-         echo -e "*/" >> ./htdocs/drupal-7.41/sites/default/settings.php
+         # echo -e "*/" >> ./htdocs/drupal-7.41/sites/default/settings.php
       
          echo -e "" >> ./htdocs/drupal-7.41/sites/default/settings.php
          echo -e "//Tell Drupal it is behind a proxy" >> ./htdocs/drupal-7.41/sites/default/settings.php
@@ -306,6 +343,7 @@ stages:
          echo -e "drupal_fast_404();" >> ./htdocs/drupal-7.41/sites/default/settings.php
          echo -e "\$conf['drupal_http_request_fails'] = FALSE;" >> ./htdocs/drupal-7.41/sites/default/settings.php
          echo -e "\$conf['allow_authorize_operations'] = FALSE;" >> ./htdocs/drupal-7.41/sites/default/settings.php
+         echo -e "# Useful for CloudFlare Spam Control" >> ./htdocs/drupal-7.41/sites/default/settings.php
          echo -e "if (isset(\$_SERVER['HTTP_CF_CONNECTING_IP'])) {" >> ./htdocs/drupal-7.41/sites/default/settings.php
          echo -e "\$_SERVER['REMOTE_ADDR'] = \$_SERVER['HTTP_CF_CONNECTING_IP'];" >> ./htdocs/drupal-7.41/sites/default/settings.php
          echo -e "}" >> ./htdocs/drupal-7.41/sites/default/settings.php
@@ -370,6 +408,18 @@ stages:
       present='\xF0\x9F\x8E\x81'
       #############
       # http://serverfault.com/questions/7503/how-to-determine-if-a-bash-variable-is-empty#answer-382740
+      
+      if [ -n $(echo ${CF_TARGET_URL} | grep ng.bluemix.net) ]; then
+        echo -e "${tools}${Cyan}  Detected Region: US South${no_color}"
+        export CF_REGION=US
+      elif [ -n $(echo ${CF_TARGET_URL} | grep eu-gb.bluemix.net) ]; then
+        echo -e "${tools}${Cyan}  Detected Region: United Kingdom${no_color}"
+        export CF_REGION=UK
+      elif [ -n $(echo ${CF_TARGET_URL} | grep au-syd.bluemix.net) ]; then
+        echo -e "${tools}${Cyan}  Detected Region: Sydney${no_color}"
+        export CF_REGION=AU
+      fi
+      
       if [ -z $(cf s|grep drupaldb|cut -d" " -f1-1) ]; then
         echo -e "${fail}${Red}  PostGresql Service Instance [${Yellow}drupaldb${Red}] was not found${no_color}"
         return 1
@@ -377,8 +427,20 @@ stages:
       
       if [ -z $(cf s|grep drupalredis|cut -d" " -f1-1) ]; then
         echo -e "${fail}${Red}  Redis Service Instance [${Yellow}drupalredis${Red}] was not found${no_color}"
+        echo -e "${tools}${Red}  Removing Redis service reference from manifest.yml${no_color}"
+        sed -e "/drupalredis/ {d;}" ./manifest.yml > manifest.new
+        rm manifest.yml
+        mv manifest.new manifest.yml
       fi
-
+      
+      if [ -z $(cf s|grep sendsms|cut -d" " -f1-1) ]; then
+        echo -e "${fail}${Red}  Twilio Service Instance [${Yellow}sendsms${Red}] was not found${no_color}"
+        echo -e "${tools}${Red}  Removing Twilio service reference from manifest.yml${no_color}"
+        sed -e "/sendsms/ {d;}" ./manifest.yml > manifest.new
+        rm manifest.yml
+        mv manifest.new manifest.yml
+      fi
+      
       echo -e "${tools}${Yellow}  Sendgrid detection routine ...${no_color}" > /dev/null 2>&1
       if [ -n $(cf s|grep sendgrid|cut -d" " -f1-1) ] && [ $(cf s|grep sendgrid|cut -d" " -f1-1) != "sendmail" ]; then
         echo -e "${eyes}${Yellow}   Detected existing sendgrid service ${existingSendgrid} within target space${no_color}"
@@ -387,9 +449,28 @@ stages:
         rm manifest.yml
         mv manifest.new manifest.yml
       else
-        echo -e "${fail}${Red}    Sendgrid Service ${Yellow}sendmail${Red} was not available${no_color}"
+        if [ ${CF_REGION} == "US" ]; then
+          if [ -z $(cf s|grep sendgrid|cut -d" " -f1-1) ]; then
+            echo -e "${tools}${Yellow}    Pre-creating Sendgrid Service named [${Cyan}sendmail${Yellow}]${no_color}"
+            t=0
+            until [ $t -ge 5 ]
+            do
+              cf cs sendgrid free sendmail > /dev/null 2>&1 && break
+              t=$[$t+1]
+              sleep 15
+            done
+          else
+            echo -e "${tools}${Yellow}    Existing Sendgrid Service named [${Cyan}sendmail${Yellow}] detected.${no_color}"
+          fi
+        else
+          echo -e "${tools}${Yellow}    Sendgrid service not available in this region${no_color}"
+          echo -e "${tools}${Red}  Removing Sendgrid service reference from manifest.yml${no_color}"
+          sed -e "/sendmail/ {d;}" ./manifest.yml > manifest.new
+          rm manifest.yml
+          mv manifest.new manifest.yml
+        fi
       fi
-
+      
       p=0
       until [ $p -ge 2 ]
       do

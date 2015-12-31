@@ -119,6 +119,10 @@ stages:
       wget http://ftp.drupal.org/files/projects/corporateclean-7.x-2.3.zip -nv -O ./bluezone/corpclean.zip
       unzip -o ./bluezone/corpclean.zip -d ./htdocs/drupal-7.41/sites/all/themes > /dev/null 2>&1
       
+      echo -e "${tools}${Cyan}      Installing Zen Theme ...${no_color}"
+      wget http://ftp.drupal.org/files/projects/zen-7.x-5.6.zip -nv -O ./bluezone/zen.zip
+      unzip -o ./bluezone/zen.zip -d ./htdocs/drupal-7.41/sites/all/themes > /dev/null 2>&1
+      
       for (( i = 0 ; i < ${#desiredModule[@]} ; i++ )); do 
         echo -e "${tools}${Cyan}      Installing ${desiredModule[$i]} Module ...${no_color}"
         wget $rooturl/${desiredModule[$i]} -nv -O ./bluezone/${desiredModule[$i]}

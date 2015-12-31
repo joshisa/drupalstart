@@ -501,7 +501,7 @@ stages:
            # tar over ssh for optimal speed within the .profile.d fusemount script.  Unfortunately, because of the
            # number of pre-included modules and themes - this transfer can exceed 180s.  To make this easier,
            # we'll create a flag within the manifest.yml to signify user intention and make this process easier.
-           cf push "${CF_APP}" -t 180 --no-route && echo -e "${beer} ${beers}${Green}  Congrats! Your secure Drupal deploy is now using a SSHFS mount for site config!  Now, remember to toggle the manifest entry SSHFS_FIRSTSETUP back to false.${no_color}" && echo -e "${beer} ${beers}${Green}  finis coronat opus${no_color}" && break
+           cf push "${CF_APP}" -t 180 --no-route && echo -e "${beer} ${beers}${Green}  Congrats! Your secure Drupal deploy is now using a SSHFS mount for site config!  Remember to toggle the env var SSHFS_FIRSTSETUP back to false and redeploy.${no_color}" && echo -e "${beer} ${beers}${Green}  finis coronat opus${no_color}" && break
          else
            cf push "${CF_APP}" -t 180 && echo -e "${beer} ${beers}${Green}  Congrats! Your secure Drupal deploy is up and running!${no_color}" && echo -e "${beer} ${beers}${Green}  finis coronat opus${no_color}" && break
          fi

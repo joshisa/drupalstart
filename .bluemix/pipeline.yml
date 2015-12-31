@@ -383,6 +383,10 @@ stages:
     job: WrapPresent
   triggers:
   - type: stage
+  properties:
+  - name: SSHFS_FIRSTSETUP
+    value: 'false'
+    type: text
   jobs:
   - name: OpenPresent
     type: deployer
@@ -421,6 +425,8 @@ stages:
       present='\xF0\x9F\x8E\x81'
       #############
       # http://serverfault.com/questions/7503/how-to-determine-if-a-bash-variable-is-empty#answer-382740
+      
+      export SSHFS_FIRSTSETUP=no
       
       if [ -n $(echo ${CF_TARGET_URL} | grep ng.bluemix.net) ]; then
         echo -e "${tools}${Cyan}  Detected Region: US South${no_color}"
@@ -487,7 +493,7 @@ stages:
       p=0
       until [ $p -ge 2 ]
       do
-         if [ -n $(grep -F "SSHFS_FIRSTSETUP: 'yes'" ./manifest.yml) ]; then
+         if [ ${SSHFS_FIRSTSETUP} == "yes" ]; then
            # WORKAROUND
            # This is required because of Cloud Foundry's hardcoded max of 180s for the Health Check timeout value
            # The health check is disabled for no-route deploys

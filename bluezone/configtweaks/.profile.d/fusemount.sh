@@ -18,8 +18,8 @@ harpoons='\xE2\x87\x8C'
 tools='\xE2\x9A\x92'
 present='\xF0\x9F\x8E\x81'
 #############
-export DRUPAL_DOMAIN_NAME="$(python $HOME/.profile.d/app_uri.py)"
 echo ""
+
 if [ -n "${SSHFS_HOST+set}" ]; then
   echo -e "${delivery}${Yellow}  Detected SSHFS Environment Variables. Initiating relocation of sites content to remote storage ..."
   echo -e "${delivery}${Yellow}  Reading SSHFS mount environment variables ..."
@@ -51,17 +51,17 @@ if [ -n "${SSHFS_HOST+set}" ]; then
     echo -e "${fail}${Red}    SSHFS Mount failed!"
     echo -e "${fail}${Red}    User-provided Env Var SSHFS_USER AND/OR SSHFS_DIR not set!"
   fi
-  if [ -n "${DRUPAL_DOMAIN_NAME+set}" ]; then
-    echo -e "${cloud}${Cyan}  Current deployed application URI is ${Yellow}${DRUPAL_DOMAIN_NAME}"
+  if [ -n "${SSHFS_NAMESPACE+set}" ]; then
+    echo -e "${cloud}${Yellow}  Current deployed application URI is ${Cyan}${SSHFS_NAMESPACE}"
     echo -e "${delivery}${Yellow}  Creating Domain Namespace within mounted location ..."
-    mkdir -p /home/vcap/misc/${DRUPAL_DOMAIN_NAME}
+    mkdir -p /home/vcap/misc/${SSHFS_NAMESPACE}
     echo -e "${delivery}${Yellow}  Creating sites folder within mounted Domain Namespace ..."
-    mkdir -p /home/vcap/misc/${DRUPAL_DOMAIN_NAME}/sites
+    mkdir -p /home/vcap/misc/${SSHFS_NAMESPACE}/sites
     # Note:  Rename of existing assembled sites folder must always precede the Symlink creation
     echo -e "${delivery}${Yellow}  Temporarily renaming assembled sites folder ..."
     mv /home/vcap/app/htdocs/drupal-7.41/sites /home/vcap/app/htdocs/drupal-7.41/mirage
     echo -e "${delivery}${Yellow}  Creating Symlink between Drupal Sites folder and mounted Domain Namespace location ..."
-    ln -s /home/vcap/misc/${DRUPAL_DOMAIN_NAME}/sites /home/vcap/app/htdocs/drupal-7.41
+    ln -s /home/vcap/misc/${SSHFS_NAMESPACE}/sites /home/vcap/app/htdocs/drupal-7.41
     # Comment:  cp is too slow, even with 180 sec extended health check
     # cp -R /home/vcap/app/htdocs/drupal-7.41/mirage/. /home/vcap/app/htdocs/drupal-7.41/sites
     # Comment:  scp was too slow, even with 180 sec extended health check
@@ -70,17 +70,17 @@ if [ -n "${SSHFS_HOST+set}" ]; then
     # If health check timeouts occur during deploy, one mitigation is to reduce the amount of "desired" modules within the default assembly.
     # In theory, now that we are using a SSHFS file storage, installation via website should persist.  This should also enable multiple cf instances
     echo -e "${eyes}${Cyan}  Inspecting mounted Domain Namespace for existing site files ..."
-    if [ -f "/home/vcap/misc/${DRUPAL_DOMAIN_NAME}/sites/default/settings.php" ]; then
+    if [ -f "/home/vcap/misc/${SSHFS_NAMESPACE}/sites/default/settings.php" ]; then
       echo -e "${beer}${Cyan}    Existing settings.php file detected.  Skipping transfer of assembled sites folder."
     else
       echo -e "${harpoons}${Yellow}    Moving previously assembled sites folder content onto SSHFS mount (Overwrite enabled).  Estimated time: 135 seconds ..."
-      tar -C /home/vcap/app/htdocs/drupal-7.41/mirage -jcf - ./ | ssh -i /home/vcap/app/.profile.d/id_rsa -o UserKnownHostsFile=/home/vcap/app/.profile.d/known_hosts ${SSHFS_USER}@${SSHFS_HOST} "tar -C/home/paramount/${DRUPAL_DOMAIN_NAME}/sites -ojxf -"
+      tar -C /home/vcap/app/htdocs/drupal-7.41/mirage -jcf - ./ | ssh -i /home/vcap/app/.profile.d/id_rsa -o UserKnownHostsFile=/home/vcap/app/.profile.d/known_hosts ${SSHFS_USER}@${SSHFS_HOST} "tar -C/home/paramount/${SSHFS_NAMESPACE}/sites -ojxf -"
     fi
     echo -e "${litter}${Yellow}  Removing legacy sites folder"
     rm -rf /home/vcap/app/htdocs/drupal-7.41/mirage
   else
     echo -e "${fail}${Red}    Symlink creation failed!"
-    echo -e "${fail}${Red}    Calculated Var DRUPAL_DOMAIN_NAME not set!"
+    echo -e "${fail}${Red}    Env Var SSHFS_NAMESPACE not set!"
   fi
 else
   echo -e "${delivery}${Yellow}  No SSHFS Environment Variables detected. Proceeding with local ephemeral sites folder."

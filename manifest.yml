@@ -12,3 +12,4 @@ applications:
   -  drupaldb
   -  drupalredis
   -  sendmail
+  -  sendsms

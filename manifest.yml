@@ -9,7 +9,7 @@ applications:
   env:
     VARNISH_MEMORY_LIMIT: 1G
     SSHFS_NAMESPACE: drupal.on.ibm.bluemix
-    SSHFS_FIRSTSETUP: False
+    SSHFS_FIRSTSETUP: no
   services:
   -  drupaldb
   -  drupalredis

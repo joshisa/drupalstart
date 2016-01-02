@@ -11,6 +11,5 @@ applications:
     SSHFS_NAMESPACE: "drupal.on.ibm.bluemix"
   services:
   -  drupaldb
-  -  drupalredis
   -  sendmail
   -  sendsms

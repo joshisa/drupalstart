@@ -425,7 +425,7 @@ stages:
       #############
       # http://serverfault.com/questions/7503/how-to-determine-if-a-bash-variable-is-empty#answer-382740
       
-      export SSHFS_FIRSTSETUP=no
+      export SSHFS_FIRSTSETUP=yes
       
       if [ -n $(echo ${CF_TARGET_URL} | grep ng.bluemix.net) ]; then
         echo -e "${tools}${Cyan}  Detected Region: US South${no_color}"

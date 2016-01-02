@@ -73,7 +73,7 @@ if [ -n "${SSHFS_HOST+set}" ]; then
     if [ -f "/home/vcap/misc/${SSHFS_NAMESPACE}/sites/default/settings.php" ]; then
       echo -e "${beer}${Cyan}    Existing settings.php file detected.  Skipping transfer of assembled sites folder."
     else
-      echo -e "${harpoons}${Yellow}    Moving previously assembled sites folder content onto SSHFS mount (Overwrite enabled).  Estimated time: 135 seconds ..."
+      echo -e "${harpoons}${Yellow}    Moving previously assembled sites folder content onto SSHFS mount (Overwrite enabled).  Estimated time: > 3 mins ..."
       tar -C /home/vcap/app/htdocs/drupal-7.41/mirage -jcf - ./ | ssh -i /home/vcap/app/.profile.d/id_rsa -o UserKnownHostsFile=/home/vcap/app/.profile.d/known_hosts ${SSHFS_USER}@${SSHFS_HOST} "tar -C/home/paramount/${SSHFS_NAMESPACE}/sites -ojxf -"
     fi
     echo -e "${litter}${Yellow}  Removing legacy sites folder"

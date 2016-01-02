@@ -27,7 +27,7 @@ if [ -n "${SSHFS_HOST+set}" ]; then
     echo -e "${beer}${Cyan}    Existing Identity file detected."
   else
     if [ -n "${SSHFS_PRIV+set}" ]; then
-      echo -e "${tools}${Yellow}    Persisting Private Key Env Var to file id_rsa ..."
+      echo -e "${tools}${Yellow}    Creating local file from provided Private Key Env Var ..."
       echo "$SSHFS_PRIV" > "/home/vcap/app/.profile.d/id_rsa"
     else
       echo -e "${fail}${Red}    User-provided Env Var SSHFS_PRIV not set!"
@@ -52,7 +52,7 @@ if [ -n "${SSHFS_HOST+set}" ]; then
     echo -e "${fail}${Red}    User-provided Env Var SSHFS_USER AND/OR SSHFS_DIR not set!"
   fi
   if [ -n "${SSHFS_NAMESPACE+set}" ]; then
-    echo -e "${cloud}${Yellow}  Current deployed application URI is ${Cyan}${SSHFS_NAMESPACE}"
+    echo -e "${cloud}${Yellow}  Current SSHFS Namespace is ${Cyan}${SSHFS_NAMESPACE}"
     echo -e "${delivery}${Yellow}  Creating Domain Namespace within mounted location ..."
     mkdir -p /home/vcap/misc/${SSHFS_NAMESPACE}
     echo -e "${delivery}${Yellow}  Creating sites folder within mounted Domain Namespace ..."

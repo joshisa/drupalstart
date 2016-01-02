@@ -288,6 +288,18 @@ stages:
          echo -e "      } elseif (\$item[\"name\"] == \"drupalredis\") {" >> ./htdocs/drupal-7.41/sites/default/settings.php
          echo -e "         \$redis_config = \$item[\"credentials\"];" >> ./htdocs/drupal-7.41/sites/default/settings.php
          echo -e "         list(\$rhostname, \$rport) = explode(':', \$redis_config[\"public_hostname\"]);" >> ./htdocs/drupal-7.41/sites/default/settings.php
+         # Useful only if Redis Caching is desired
+         # Reference: http://dropbucket.org/node/242
+         # Reference: https://redislabs.com/drupal-redis
+         echo -e "         // Setup Redis Cache for Drupal if service is available" >> ./htdocs/drupal-7.41/sites/default/settings.php
+         echo -e "         define('PREDIS_BASE_PATH', DRUPAL_ROOT . '/sites/all/libraries/predis-1.0.3/');" >> ./htdocs/drupal-7.41/sites/default/settings.php
+         echo -e "         \$conf['redis_client_interface'] = 'Predis';" >> ./htdocs/drupal-7.41/sites/default/settings.php
+         echo -e "         \$conf['redis_client_host'] = \$rhostname;" >> ./htdocs/drupal-7.41/sites/default/settings.php
+         echo -e "         \$conf['redis_client_port'] = \$rport;" >> ./htdocs/drupal-7.41/sites/default/settings.php
+         echo -e "         \$conf['redis_client_password'] = \$redis_config[\"password\"];" >> ./htdocs/drupal-7.41/sites/default/settings.php
+         echo -e "         \$conf['lock_inc'] = 'sites/all/modules/contrib/redis/redis.lock.inc';" >> ./htdocs/drupal-7.41/sites/default/settings.php
+         echo -e "         \$conf['cache_backends'][] = 'sites/all/modules/contrib/redis/redis.autoload.inc';" >> ./htdocs/drupal-7.41/sites/default/settings.php
+         echo -e "         \$conf['cache_default_class'] = 'Redis_Cache';" >> ./htdocs/drupal-7.41/sites/default/settings.php 
          echo -e "      } elseif (\$item[\"name\"] == \"sendsms\") {" >> ./htdocs/drupal-7.41/sites/default/settings.php
          echo -e "         \$twilio_config = \$item[\"credentials\"];" >> ./htdocs/drupal-7.41/sites/default/settings.php
          echo -e "         \$conf['twiliophp_account_sid'] = \$twilio_config[\"accountSID\"];" >> ./htdocs/drupal-7.41/sites/default/settings.php
@@ -323,22 +335,6 @@ stages:
          echo -e "    )" >> ./htdocs/drupal-7.41/sites/default/settings.php
          echo -e "  )" >> ./htdocs/drupal-7.41/sites/default/settings.php
          echo -e ");" >> ./htdocs/drupal-7.41/sites/default/settings.php
-      
-         # Useful only if Redis Caching is desired
-         # Reference: http://dropbucket.org/node/242
-         # Reference: https://redislabs.com/drupal-redis
-         # echo -e "/*" >> ./htdocs/drupal-7.41/sites/default/settings.php
-         echo -e "// Setup Redis Cache for Drupal if service is available" >> ./htdocs/drupal-7.41/sites/default/settings.php
-         echo -e "define('PREDIS_BASE_PATH', DRUPAL_ROOT . '/sites/all/libraries/predis-1.0.3/');" >> ./htdocs/drupal-7.41/sites/default/settings.php
-         echo -e "\$conf['redis_client_interface'] = 'Predis';" >> ./htdocs/drupal-7.41/sites/default/settings.php
-         echo -e "\$conf['redis_client_host'] = \$rhostname;" >> ./htdocs/drupal-7.41/sites/default/settings.php
-         echo -e "\$conf['redis_client_port'] = \$rport;" >> ./htdocs/drupal-7.41/sites/default/settings.php
-         echo -e "\$conf['redis_client_password'] = \$redis_config[\"password\"];" >> ./htdocs/drupal-7.41/sites/default/settings.php
-         echo -e "\$conf['lock_inc'] = 'sites/all/modules/contrib/redis/redis.lock.inc';" >> ./htdocs/drupal-7.41/sites/default/settings.php
-         echo -e "\$conf['cache_backends'][] = 'sites/all/modules/contrib/redis/redis.autoload.inc';" >> ./htdocs/drupal-7.41/sites/default/settings.php
-         echo -e "\$conf['cache_default_class'] = 'Redis_Cache';" >> ./htdocs/drupal-7.41/sites/default/settings.php 
-         # echo -e "*/" >> ./htdocs/drupal-7.41/sites/default/settings.php
-      
          echo -e "" >> ./htdocs/drupal-7.41/sites/default/settings.php
          echo -e "//Tell Drupal it is behind a proxy" >> ./htdocs/drupal-7.41/sites/default/settings.php
          echo -e "\$conf['reverse_proxy'] = TRUE;" >> ./htdocs/drupal-7.41/sites/default/settings.php
@@ -357,7 +353,7 @@ stages:
          echo -e "drupal_fast_404();" >> ./htdocs/drupal-7.41/sites/default/settings.php
          echo -e "\$conf['drupal_http_request_fails'] = FALSE;" >> ./htdocs/drupal-7.41/sites/default/settings.php
          echo -e "\$conf['allow_authorize_operations'] = FALSE;" >> ./htdocs/drupal-7.41/sites/default/settings.php
-         echo -e "# Useful for CloudFlare Spam Control" >> ./htdocs/drupal-7.41/sites/default/settings.php
+         echo -e "// Useful for CloudFlare Spam Control" >> ./htdocs/drupal-7.41/sites/default/settings.php
          echo -e "if (isset(\$_SERVER['HTTP_CF_CONNECTING_IP'])) {" >> ./htdocs/drupal-7.41/sites/default/settings.php
          echo -e "  \$_SERVER['REMOTE_ADDR'] = \$_SERVER['HTTP_CF_CONNECTING_IP'];" >> ./htdocs/drupal-7.41/sites/default/settings.php
          echo -e "}" >> ./htdocs/drupal-7.41/sites/default/settings.php

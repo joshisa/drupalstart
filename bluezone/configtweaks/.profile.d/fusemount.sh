@@ -75,6 +75,9 @@ if [ -n "${SSHFS_HOST+set}" ]; then
     else
       echo -e "${harpoons}${Yellow}    Moving previously assembled sites folder content onto SSHFS mount (Overwrite enabled).  Estimated time: > 3 mins ..."
       tar -C /home/vcap/app/htdocs/drupal-7.41/mirage -jcf - ./ | ssh -i /home/vcap/app/.profile.d/id_rsa -o UserKnownHostsFile=/home/vcap/app/.profile.d/known_hosts ${SSHFS_USER}@${SSHFS_HOST} "tar -C/home/paramount/${SSHFS_NAMESPACE}/sites -ojxf -"
+      echo -e "${eyes}${Cyan}  Changing ownership of files folder to match apache web user [vcap] ..."
+      chown -R vcap /home/vcap/misc/${SSHFS_NAMESPACE}/sites/default/files
+      chmod -R 0700 /home/vcap/misc/${SSHFS_NAMESPACE}/sites/default/files
     fi
     echo -e "${litter}${Yellow}  Removing legacy sites folder"
     rm -rf /home/vcap/app/htdocs/drupal-7.41/mirage

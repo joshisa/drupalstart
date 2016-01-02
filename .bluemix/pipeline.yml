@@ -342,6 +342,9 @@ stages:
          echo -e "" >> ./htdocs/drupal-7.41/sites/default/settings.php
          echo -e "//Tell Drupal it is behind a proxy" >> ./htdocs/drupal-7.41/sites/default/settings.php
          echo -e "\$conf['reverse_proxy'] = TRUE;" >> ./htdocs/drupal-7.41/sites/default/settings.php
+         echo -e "\$conf['cache_backends'][] = 'includes/cache-install.inc';" >> ./htdocs/drupal-7.41/sites/default/settings.php
+         echo -e "\$conf['cache_class_external_varnish_page'] = 'VarnishCache';" >> ./htdocs/drupal-7.41/sites/default/settings.php
+         echo -e "\$conf['cache_class_cache_page'] = 'DrupalFakeCache';" >> ./htdocs/drupal-7.41/sites/default/settings.php
          echo -e "\$conf['cache_backends'][] = 'sites/all/modules/contrib/varnish/varnish.cache.inc';" >> ./htdocs/drupal-7.41/sites/default/settings.php
          echo -e "// Tell Drupal what addresses the proxy server(s) use." >> ./htdocs/drupal-7.41/sites/default/settings.php
          echo -e "\$conf['reverse_proxy_addresses'] = array('127.0.0.1');" >> ./htdocs/drupal-7.41/sites/default/settings.php
@@ -350,14 +353,13 @@ stages:
          echo -e "\$conf['cache_lifetime'] = 0;" >> ./htdocs/drupal-7.41/sites/default/settings.php
          echo -e "\$conf['page_cache_maximum_age'] = 600;" >> ./htdocs/drupal-7.41/sites/default/settings.php
          echo -e "\$conf['cache_class_cache_form'] = 'DrupalDatabaseCache';" >> ./htdocs/drupal-7.41/sites/default/settings.php
-         echo -e "\$conf['cache_class_cache_page'] = 'DrupalDatabaseCache';" >> ./htdocs/drupal-7.41/sites/default/settings.php 
-         echo -e "\$conf['omit_vary_cookie'] = true;" >> ./htdocs/drupal-7.41/sites/default/settings.php
+         echo -e "\$conf['omit_vary_cookie'] = TRUE;" >> ./htdocs/drupal-7.41/sites/default/settings.php
          echo -e "drupal_fast_404();" >> ./htdocs/drupal-7.41/sites/default/settings.php
          echo -e "\$conf['drupal_http_request_fails'] = FALSE;" >> ./htdocs/drupal-7.41/sites/default/settings.php
          echo -e "\$conf['allow_authorize_operations'] = FALSE;" >> ./htdocs/drupal-7.41/sites/default/settings.php
          echo -e "# Useful for CloudFlare Spam Control" >> ./htdocs/drupal-7.41/sites/default/settings.php
          echo -e "if (isset(\$_SERVER['HTTP_CF_CONNECTING_IP'])) {" >> ./htdocs/drupal-7.41/sites/default/settings.php
-         echo -e "\$_SERVER['REMOTE_ADDR'] = \$_SERVER['HTTP_CF_CONNECTING_IP'];" >> ./htdocs/drupal-7.41/sites/default/settings.php
+         echo -e "  \$_SERVER['REMOTE_ADDR'] = \$_SERVER['HTTP_CF_CONNECTING_IP'];" >> ./htdocs/drupal-7.41/sites/default/settings.php
          echo -e "}" >> ./htdocs/drupal-7.41/sites/default/settings.php
       fi
       

@@ -104,6 +104,8 @@ stages:
       desiredModule[28]=twilio-7.x-1.11.zip
       # Piwik Support
       desiredModule[29]=piwik-7.x-2.7.zip
+      # Default Picture Upload
+      desiredModule[30]=upload_default_avatar-7.x-1.1.zip
       
       echo -e "${tools}${Cyan}      Installing Predis Redis Client Library ...${no_color}"
       wget https://github.com/nrk/predis/archive/v1.0.3.zip -nv -O ./bluezone/predis.zip

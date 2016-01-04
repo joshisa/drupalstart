@@ -137,6 +137,11 @@ stages:
       unset desiredModule 
       unset rooturl
       
+      echo -e "${tools}${Red}      Patching Image API Module to address the fact that Smush.it service is no longer available ...${no_color}"
+      echo -e "${tools}${Yellow}      Reference: https://www.drupal.org/node/2458453 ${no_color}"
+      wget https://www.drupal.org/files/issues/imageapi_optimize-add-resmushit-service-2458453-25.patch -nv -O ./imageapi_optimize-add-resmushit-service-2458453-25.patch
+      patch -p1 -d ./htdocs/drupal-7.41/sites/all/modules/contrib/imageapi_optimize < ./imageapi_optimize-add-resmushit-service-2458453-25.patch
+      
       echo -e "${tools}${Red}      Patching Varnish Module to fix theme_hook_original on port bug ...${no_color}"
       echo -e "${tools}${Yellow}      Reference: https://www.drupal.org/node/2371907#comment-9468011 ${no_color}"
       wget https://www.drupal.org/files/issues/varnish-2371907-24.patch -nv -O ./varnish-2371907-24.patch

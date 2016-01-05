@@ -303,7 +303,7 @@ stages:
          echo -e "\$conf['reverse_proxy'] = TRUE;" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
          echo -e "\$conf['cache_backends'][] = 'includes/cache-install.inc';" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
          echo -e "\$conf['cache_class_external_varnish_page'] = 'VarnishCache';" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
-         echo -e "\$conf['cache_class_cache_page'] = 'DrupalDatabaseCache';" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
+         echo -e "\$conf['cache_class_cache_page'] = 'VarnishCache';" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
          echo -e "\$conf['cache_backends'][] = 'sites/all/modules/contrib/varnish/varnish.cache.inc';" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
          echo -e "// Tell Drupal what addresses the proxy server(s) use." >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
          echo -e "\$conf['reverse_proxy_addresses'] = array('127.0.0.1');" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php

@@ -53,7 +53,7 @@ if [ -n "${SSHFS_HOST+set}" ]; then
     echo -e "${fail}${Red}    User-provided Env Var SSHFS_USER AND/OR SSHFS_DIR not set!"
   fi
   if [ -n "${SSHFS_NAMESPACE+set}" ]; then
-    echo -e "${cloud}${Yellow}  Current deployed application URI is ${Cyan}${SSHFS_NAMESPACE}"
+    echo -e "${cloud}${Yellow}  Current deployed application SSHFS Unique Namespace is ${Cyan}${SSHFS_NAMESPACE}"
     echo -e "${delivery}${Yellow}  Creating Domain Namespace within mounted location ..."
     mkdir -p /home/vcap/misc/${SSHFS_NAMESPACE}
     echo -e "${delivery}${Yellow}  Creating sites folder within mounted Domain Namespace ..."

@@ -214,112 +214,116 @@ stages:
       echo -e "${cloud}${Yellow}    Making drupal artifacts ${Cyan}Bluemix ${Yellow}friendly ...${no_color}"
       mv ./bluezone/configtweaks/.user.ini ./htdocs/${INSTALLPKG}
 
-      # Embed config file if provided
-      if [ -f "./bluezone/configtweaks/settings.php" ]; then
-         echo -e "${tools}${Cyan}    Drupal Config file detected ...${no_color}"
-         mv ./bluezone/configtweaks/settings.php ./htdocs/${INSTALLPKG}/sites/default
+      if [ ${SSHFS_COMPLETE} != "yes" ]; then
+        # Embed config file if provided
+        if [ -f "./bluezone/configtweaks/settings.php" ]; then
+           echo -e "${tools}${Cyan}    Drupal Config file detected ...${no_color}"
+           mv ./bluezone/configtweaks/settings.php ./htdocs/${INSTALLPKG}/sites/default
+        else
+           echo -e "${tools}${Cyan}    NO Drupal Config file detected, using default ...${no_color}"
+           cp ./htdocs/${INSTALLPKG}/sites/default/default.settings.php ./htdocs/${INSTALLPKG}/sites/default/settings.php
+           echo -e "\$application = getenv(\"VCAP_APPLICATION\");" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
+           echo -e "\$application_json = json_decode(\$application,true);" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
+           echo -e "if (isset(\$application_json[\"application_uris\"])) {" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
+           echo -e "  \$base_url = \"https://\" . \$application_json[\"application_uris\"][0];" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
+           echo -e "}" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
+           echo -e "\$services = getenv(\"VCAP_SERVICES\");" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
+           echo -e "\$services_json = json_decode(\$services,true);" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
+           echo -e "if (isset(\$services_json)) {" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
+           echo -e "  if (isset(\$services_json[\"user-provided\"])) {" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
+           echo -e "    foreach(\$services_json[\"user-provided\"] as \$item) {" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
+           echo -e "      if (\$item[\"name\"] == \"drupaldb\") {" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
+           echo -e "         \$postgres_config = \$item[\"credentials\"];" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
+           echo -e "         list(\$hostname, \$port) = explode(':', \$postgres_config[\"public_hostname\"]);" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
+           echo -e "         \$dbname = 'compose';" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
+           echo -e "      } elseif (\$item[\"name\"] == \"drupalredis\") {" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
+           echo -e "         \$redis_config = \$item[\"credentials\"];" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
+           echo -e "         list(\$rhostname, \$rport) = explode(':', \$redis_config[\"public_hostname\"]);" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
+           # Useful only if Redis Caching is desired
+           # Reference: http://dropbucket.org/node/242
+           # Reference: https://redislabs.com/drupal-redis
+           echo -e "         // Setup Redis Cache for Drupal if service is available" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
+           echo -e "         define('PREDIS_BASE_PATH', DRUPAL_ROOT . '/sites/all/libraries/predis-1.0.3/');" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
+           echo -e "         \$conf['redis_client_interface'] = 'Predis';" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
+           echo -e "         \$conf['redis_client_host'] = \$rhostname;" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
+           echo -e "         \$conf['redis_client_port'] = \$rport;" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
+           echo -e "         \$conf['redis_client_password'] = \$redis_config[\"password\"];" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
+           echo -e "         \$conf['lock_inc'] = 'sites/all/modules/contrib/redis/redis.lock.inc';" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
+           echo -e "         \$conf['cache_backends'][] = 'sites/all/modules/contrib/redis/redis.autoload.inc';" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
+           echo -e "         \$conf['cache_class_cache_admin_menu'] = 'Redis_Cache';" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
+           echo -e "         \$conf['cache_class_cache'] = 'Redis_Cache';" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
+           echo -e "         \$conf['cache_class_cache_bootstrap'] = 'Redis_Cache';" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
+           echo -e "         \$conf['cache_class_cache_menu'] = 'Redis_Cache';" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
+           echo -e "         \$conf['cache_class_cache_block'] = 'Redis_Cache';" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
+           echo -e "         \$conf['cache_class_cache_content'] = 'Redis_Cache';" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
+           echo -e "         \$conf['cache_class_cache_filter'] = 'Redis_Cache';" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
+           echo -e "         \$conf['cache_class_cache_form'] = 'Redis_Cache';" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
+           echo -e "         \$conf['cache_default_class'] = 'Redis_Cache';" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
+           echo -e "         // If you use Entity Cache, insert this" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
+           echo -e "         \$conf['cache_entity_node'] = 'Redis_Cache';" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
+           echo -e "         \$conf['cache_entity_file'] = 'Redis_Cache';" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
+           echo -e "         \$conf['cache_entity_taxonomy_term'] = 'Redis_Cache';" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
+           echo -e "         \$conf['cache_entity_taxonomy_vocabulary'] = 'Redis_Cache';" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
+           echo -e "      } elseif (\$item[\"name\"] == \"sendsms\") {" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
+           echo -e "         \$twilio_config = \$item[\"credentials\"];" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
+           echo -e "         \$conf['twiliophp_account_sid'] = \$twilio_config[\"accountSID\"];" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
+           echo -e "         \$conf['twiliophp_auth_token'] = \$twilio_config[\"authToken\"];" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
+           echo -e "      }" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
+           echo -e "    }" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
+           echo -e "  }" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
+           echo -e "  if (isset(\$services_json[\"sendgrid\"])) {" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
+           echo -e "    \$sendgrid_config = \$services_json[\"sendgrid\"][0][\"credentials\"];" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
+           echo -e "    # Useful for Sendgrid SMTP Support" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
+           echo -e "    \$conf['mail_system']['default-system'] = 'SmtpMailSystem';" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
+           echo -e "    \$conf['smtp_on'] = TRUE;" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
+           echo -e "    \$conf['smtp_host'] = \$sendgrid_config[\"hostname\"];" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
+           echo -e "    \$conf['smtp_port'] = 587;" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
+           echo -e "    \$conf['smtp_username'] = \$sendgrid_config[\"username\"];" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
+           echo -e "    \$conf['smtp_password'] = \$sendgrid_config[\"password\"];" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
+           echo -e "    \$conf['smtp_from'] = 'unmonitored-app-message-do-not-reply@myapp.mybluemix.net';" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
+           echo -e "    \$conf['smtp_fromname'] = 'Bluemix Drupal Deploy';" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
+           echo -e "  }" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
+           echo -e "}" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
+           echo -e "\$databases = array (" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
+           echo -e "  'default' =>" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
+           echo -e "  array (" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
+           echo -e "    'default' =>" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
+           echo -e "    array (" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
+           echo -e "      'driver' => 'pgsql'," >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
+           echo -e "      'database' => \$dbname," >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
+           echo -e "      'username' => \$postgres_config[\"username\"]," >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
+           echo -e "      'password' => \$postgres_config[\"password\"]," >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
+           echo -e "      'host' => \$hostname," >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
+           echo -e "      'port' => \$port," >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
+           echo -e "      'prefix' => 'main_'" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
+           echo -e "    )" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
+           echo -e "  )" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
+           echo -e ");" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
+           echo -e "" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
+           echo -e "//Tell Drupal it is behind a proxy" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
+           echo -e "\$conf['reverse_proxy'] = TRUE;" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
+           echo -e "\$conf['cache_backends'][] = 'includes/cache-install.inc';" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
+           echo -e "\$conf['cache_class_external_varnish_page'] = 'VarnishCache';" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
+           echo -e "\$conf['cache_class_cache_page'] = 'VarnishCache';" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
+           echo -e "\$conf['cache_backends'][] = 'sites/all/modules/contrib/varnish/varnish.cache.inc';" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
+           echo -e "// Tell Drupal what addresses the proxy server(s) use." >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
+           echo -e "\$conf['reverse_proxy_addresses'] = array('127.0.0.1');" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
+           echo -e "\$conf['page_cache_invoke_hooks'] = FALSE;" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
+           echo -e "\$conf['cache'] = 1;" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
+           echo -e "\$conf['cache_lifetime'] = 0;" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
+           echo -e "\$conf['page_cache_maximum_age'] = 600;" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
+           echo -e "\$conf['cache_class_cache_form'] = 'DrupalDatabaseCache';" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
+           echo -e "\$conf['omit_vary_cookie'] = TRUE;" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
+           echo -e "drupal_fast_404();" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
+           echo -e "\$conf['drupal_http_request_fails'] = FALSE;" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
+           echo -e "\$conf['allow_authorize_operations'] = FALSE;" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
+           echo -e "// Useful for CloudFlare Spam Control" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
+           echo -e "if (isset(\$_SERVER['HTTP_CF_CONNECTING_IP'])) {" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
+           echo -e "  \$_SERVER['REMOTE_ADDR'] = \$_SERVER['HTTP_CF_CONNECTING_IP'];" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
+           echo -e "}" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
+        fi
       else
-         echo -e "${tools}${Cyan}    NO Drupal Config file detected, using default ...${no_color}"
-         cp ./htdocs/${INSTALLPKG}/sites/default/default.settings.php ./htdocs/${INSTALLPKG}/sites/default/settings.php
-         echo -e "\$application = getenv(\"VCAP_APPLICATION\");" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
-         echo -e "\$application_json = json_decode(\$application,true);" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
-         echo -e "if (isset(\$application_json[\"application_uris\"])) {" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
-         echo -e "  \$base_url = \"https://\" . \$application_json[\"application_uris\"][0];" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
-         echo -e "}" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
-         echo -e "\$services = getenv(\"VCAP_SERVICES\");" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
-         echo -e "\$services_json = json_decode(\$services,true);" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
-         echo -e "if (isset(\$services_json)) {" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
-         echo -e "  if (isset(\$services_json[\"user-provided\"])) {" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
-         echo -e "    foreach(\$services_json[\"user-provided\"] as \$item) {" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
-         echo -e "      if (\$item[\"name\"] == \"drupaldb\") {" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
-         echo -e "         \$postgres_config = \$item[\"credentials\"];" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
-         echo -e "         list(\$hostname, \$port) = explode(':', \$postgres_config[\"public_hostname\"]);" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
-         echo -e "         \$dbname = 'compose';" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
-         echo -e "      } elseif (\$item[\"name\"] == \"drupalredis\") {" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
-         echo -e "         \$redis_config = \$item[\"credentials\"];" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
-         echo -e "         list(\$rhostname, \$rport) = explode(':', \$redis_config[\"public_hostname\"]);" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
-         # Useful only if Redis Caching is desired
-         # Reference: http://dropbucket.org/node/242
-         # Reference: https://redislabs.com/drupal-redis
-         echo -e "         // Setup Redis Cache for Drupal if service is available" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
-         echo -e "         define('PREDIS_BASE_PATH', DRUPAL_ROOT . '/sites/all/libraries/predis-1.0.3/');" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
-         echo -e "         \$conf['redis_client_interface'] = 'Predis';" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
-         echo -e "         \$conf['redis_client_host'] = \$rhostname;" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
-         echo -e "         \$conf['redis_client_port'] = \$rport;" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
-         echo -e "         \$conf['redis_client_password'] = \$redis_config[\"password\"];" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
-         echo -e "         \$conf['lock_inc'] = 'sites/all/modules/contrib/redis/redis.lock.inc';" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
-         echo -e "         \$conf['cache_backends'][] = 'sites/all/modules/contrib/redis/redis.autoload.inc';" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
-         echo -e "         \$conf['cache_class_cache_admin_menu'] = 'Redis_Cache';" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
-         echo -e "         \$conf['cache_class_cache'] = 'Redis_Cache';" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
-         echo -e "         \$conf['cache_class_cache_bootstrap'] = 'Redis_Cache';" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
-         echo -e "         \$conf['cache_class_cache_menu'] = 'Redis_Cache';" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
-         echo -e "         \$conf['cache_class_cache_block'] = 'Redis_Cache';" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
-         echo -e "         \$conf['cache_class_cache_content'] = 'Redis_Cache';" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
-         echo -e "         \$conf['cache_class_cache_filter'] = 'Redis_Cache';" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
-         echo -e "         \$conf['cache_class_cache_form'] = 'Redis_Cache';" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
-         echo -e "         \$conf['cache_default_class'] = 'Redis_Cache';" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
-         echo -e "         // If you use Entity Cache, insert this" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
-         echo -e "         \$conf['cache_entity_node'] = 'Redis_Cache';" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
-         echo -e "         \$conf['cache_entity_file'] = 'Redis_Cache';" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
-         echo -e "         \$conf['cache_entity_taxonomy_term'] = 'Redis_Cache';" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
-         echo -e "         \$conf['cache_entity_taxonomy_vocabulary'] = 'Redis_Cache';" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
-         echo -e "      } elseif (\$item[\"name\"] == \"sendsms\") {" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
-         echo -e "         \$twilio_config = \$item[\"credentials\"];" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
-         echo -e "         \$conf['twiliophp_account_sid'] = \$twilio_config[\"accountSID\"];" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
-         echo -e "         \$conf['twiliophp_auth_token'] = \$twilio_config[\"authToken\"];" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
-         echo -e "      }" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
-         echo -e "    }" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
-         echo -e "  }" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
-         echo -e "  if (isset(\$services_json[\"sendgrid\"])) {" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
-         echo -e "    \$sendgrid_config = \$services_json[\"sendgrid\"][0][\"credentials\"];" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
-         echo -e "    # Useful for Sendgrid SMTP Support" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
-         echo -e "    \$conf['mail_system']['default-system'] = 'SmtpMailSystem';" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
-         echo -e "    \$conf['smtp_on'] = TRUE;" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
-         echo -e "    \$conf['smtp_host'] = \$sendgrid_config[\"hostname\"];" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
-         echo -e "    \$conf['smtp_port'] = 587;" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
-         echo -e "    \$conf['smtp_username'] = \$sendgrid_config[\"username\"];" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
-         echo -e "    \$conf['smtp_password'] = \$sendgrid_config[\"password\"];" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
-         echo -e "    \$conf['smtp_from'] = 'unmonitored-app-message-do-not-reply@myapp.mybluemix.net';" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
-         echo -e "    \$conf['smtp_fromname'] = 'Bluemix Drupal Deploy';" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
-         echo -e "  }" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
-         echo -e "}" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
-         echo -e "\$databases = array (" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
-         echo -e "  'default' =>" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
-         echo -e "  array (" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
-         echo -e "    'default' =>" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
-         echo -e "    array (" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
-         echo -e "      'driver' => 'pgsql'," >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
-         echo -e "      'database' => \$dbname," >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
-         echo -e "      'username' => \$postgres_config[\"username\"]," >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
-         echo -e "      'password' => \$postgres_config[\"password\"]," >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
-         echo -e "      'host' => \$hostname," >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
-         echo -e "      'port' => \$port," >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
-         echo -e "      'prefix' => 'main_'" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
-         echo -e "    )" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
-         echo -e "  )" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
-         echo -e ");" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
-         echo -e "" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
-         echo -e "//Tell Drupal it is behind a proxy" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
-         echo -e "\$conf['reverse_proxy'] = TRUE;" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
-         echo -e "\$conf['cache_backends'][] = 'includes/cache-install.inc';" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
-         echo -e "\$conf['cache_class_external_varnish_page'] = 'VarnishCache';" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
-         echo -e "\$conf['cache_class_cache_page'] = 'VarnishCache';" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
-         echo -e "\$conf['cache_backends'][] = 'sites/all/modules/contrib/varnish/varnish.cache.inc';" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
-         echo -e "// Tell Drupal what addresses the proxy server(s) use." >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
-         echo -e "\$conf['reverse_proxy_addresses'] = array('127.0.0.1');" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
-         echo -e "\$conf['page_cache_invoke_hooks'] = FALSE;" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
-         echo -e "\$conf['cache'] = 1;" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
-         echo -e "\$conf['cache_lifetime'] = 0;" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
-         echo -e "\$conf['page_cache_maximum_age'] = 600;" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
-         echo -e "\$conf['cache_class_cache_form'] = 'DrupalDatabaseCache';" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
-         echo -e "\$conf['omit_vary_cookie'] = TRUE;" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
-         echo -e "drupal_fast_404();" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
-         echo -e "\$conf['drupal_http_request_fails'] = FALSE;" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
-         echo -e "\$conf['allow_authorize_operations'] = FALSE;" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
-         echo -e "// Useful for CloudFlare Spam Control" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
-         echo -e "if (isset(\$_SERVER['HTTP_CF_CONNECTING_IP'])) {" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
-         echo -e "  \$_SERVER['REMOTE_ADDR'] = \$_SERVER['HTTP_CF_CONNECTING_IP'];" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
-         echo -e "}" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
+        echo -e "${beers}${Cyan}      Skipping settings.php construction. Separately mount your SSHFS location and administrate your settings.php from there...${no_color}"
       fi
       
       # Cleaning up

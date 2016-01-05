@@ -114,6 +114,8 @@ stages:
       desiredModule[33]=imageapi_optimize-7.x-1.2.zip
       # Backup and Migrate
       desiredModule[34]=backup_migrate-7.x-3.1.zip
+      # AuthCache v2
+      desiredModule[35]=authcache-7.x-2.0-beta7.zip
       
       echo -e "${tools}${Cyan}      Installing Predis Redis Client Library ...${no_color}"
       wget https://github.com/nrk/predis/archive/v1.0.3.zip -nv -O ./bluezone/predis.zip

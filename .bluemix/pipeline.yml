@@ -40,6 +40,7 @@ stages:
       present='\xF0\x9F\x8E\x81'
       #############
       echo ""
+      INSTALLPKG=drupal-7.41
       echo -e "${cloud}${Cyan}  Let's setup Drupal for initial deployment${no_color}"
       echo -e "${tools}${Yellow}    Updating apt-get ...${no_color}"
       sudo apt-get update > /dev/null 2>&1
@@ -55,12 +56,12 @@ stages:
       
       echo -e "${harpoons}${Yellow}    Fetching Drupal Zip ...${no_color}"
       mkdir htdocs
-      wget http://ftp.drupal.org/files/projects/drupal-7.41.zip -nv -O ./bluezone/drupal.zip
+      wget http://ftp.drupal.org/files/projects/${INSTALLPKG}.zip -nv -O ./bluezone/drupal.zip
       echo -e "${tools}${Yellow}    Extracting Drupal${no_color}"
       unzip -o ./bluezone/drupal.zip -d ./htdocs > /dev/null 2>&1
       
       echo -e "${tools}${Cyan}    Setting up default site folders ...${no_color}"
-      mv ./bluezone/configtweaks/files ./htdocs/drupal-7.41/sites/default
+      mv ./bluezone/configtweaks/files ./htdocs/${INSTALLPKG}/sites/default
       
       echo -e "${tools}${Yellow}    Setting up best practice modules, libraries, themes  ...${no_color}"
       # In many cases, these are updated modules to help to create a snappy responsive deploy
@@ -111,28 +112,30 @@ stages:
       desiredModule[32]=minify-7.x-1.3.zip
       # Optimize Images - Google PageSpeed Optimization
       desiredModule[33]=imageapi_optimize-7.x-1.2.zip
+      # Backup and Migrate
+      desiredModule[34]=backup_migrate-7.x-3.1.zip
       
       echo -e "${tools}${Cyan}      Installing Predis Redis Client Library ...${no_color}"
       wget https://github.com/nrk/predis/archive/v1.0.3.zip -nv -O ./bluezone/predis.zip
-      unzip -o ./bluezone/predis.zip -d ./htdocs/drupal-7.41/sites/all/libraries > /dev/null 2>&1
+      unzip -o ./bluezone/predis.zip -d ./htdocs/${INSTALLPKG}/sites/all/libraries > /dev/null 2>&1
       
       echo -e "${tools}${Cyan}      Installing Twilio PHP Library ...${no_color}"
       wget https://github.com/twilio/twilio-php/archive/master.zip -nv -O ./bluezone/twilio.zip
-      unzip -o ./bluezone/twilio.zip -d ./htdocs/drupal-7.41/sites/all/libraries > /dev/null 2>&1
-      mv ./htdocs/drupal-7.41/sites/all/libraries/twilio-php-master ./htdocs/drupal-7.41/sites/all/libraries/twilio
+      unzip -o ./bluezone/twilio.zip -d ./htdocs/${INSTALLPKG}/sites/all/libraries > /dev/null 2>&1
+      mv ./htdocs/${INSTALLPKG}/sites/all/libraries/twilio-php-master ./htdocs/${INSTALLPKG}/sites/all/libraries/twilio
       
       echo -e "${tools}${Cyan}      Installing CorporateClean Theme ...${no_color}"
       wget http://ftp.drupal.org/files/projects/corporateclean-7.x-2.3.zip -nv -O ./bluezone/corpclean.zip
-      unzip -o ./bluezone/corpclean.zip -d ./htdocs/drupal-7.41/sites/all/themes > /dev/null 2>&1
+      unzip -o ./bluezone/corpclean.zip -d ./htdocs/${INSTALLPKG}/sites/all/themes > /dev/null 2>&1
       
       echo -e "${tools}${Cyan}      Installing Zen Theme ...${no_color}"
       wget http://ftp.drupal.org/files/projects/zen-7.x-5.6.zip -nv -O ./bluezone/zen.zip
-      unzip -o ./bluezone/zen.zip -d ./htdocs/drupal-7.41/sites/all/themes > /dev/null 2>&1
+      unzip -o ./bluezone/zen.zip -d ./htdocs/${INSTALLPKG}/sites/all/themes > /dev/null 2>&1
       
       for (( i = 0 ; i < ${#desiredModule[@]} ; i++ )); do 
         echo -e "${tools}${Cyan}      Installing ${desiredModule[$i]} Module ...${no_color}"
         wget $rooturl/${desiredModule[$i]} -nv -O ./bluezone/${desiredModule[$i]}
-        unzip -o ./bluezone/${desiredModule[$i]} -d ./htdocs/drupal-7.41/sites/all/modules/contrib > /dev/null 2>&1
+        unzip -o ./bluezone/${desiredModule[$i]} -d ./htdocs/${INSTALLPKG}/sites/all/modules/contrib > /dev/null 2>&1
       done 
       unset desiredModule 
       unset rooturl
@@ -140,12 +143,12 @@ stages:
       echo -e "${tools}${Red}      Patching Image API Module to address the fact that Smush.it service is no longer available ...${no_color}"
       echo -e "${tools}${Yellow}      Reference: https://www.drupal.org/node/2458453 ${no_color}"
       wget https://www.drupal.org/files/issues/imageapi_optimize-add-resmushit-service-2458453-25.patch -nv -O ./imageapi_optimize-add-resmushit-service-2458453-25.patch
-      patch -p1 -d ./htdocs/drupal-7.41/sites/all/modules/contrib/imageapi_optimize < ./imageapi_optimize-add-resmushit-service-2458453-25.patch
+      patch -p1 -d ./htdocs/${INSTALLPKG}/sites/all/modules/contrib/imageapi_optimize < ./imageapi_optimize-add-resmushit-service-2458453-25.patch
       
       echo -e "${tools}${Red}      Patching Varnish Module to fix theme_hook_original on port bug ...${no_color}"
       echo -e "${tools}${Yellow}      Reference: https://www.drupal.org/node/2371907#comment-9468011 ${no_color}"
       wget https://www.drupal.org/files/issues/varnish-2371907-24.patch -nv -O ./varnish-2371907-24.patch
-      patch -d ./htdocs/drupal-7.41/sites/all/modules/contrib/varnish < ./varnish-2371907-24.patch
+      patch -d ./htdocs/${INSTALLPKG}/sites/all/modules/contrib/varnish < ./varnish-2371907-24.patch
       rm varnish-2371907-24.patch
       
       echo -e "${tools}${Cyan}    Setting up user provided libraries ...${no_color}"
@@ -153,7 +156,7 @@ stages:
           if [ -d ${f} ]; then
               # Will not run if no directories are available
               echo -e "${harpoons}${Cyan}      Installing ${f} User-Provided libraries ...${no_color}"
-              mv $f ./htdocs/drupal-7.41/sites/all/libraries
+              mv $f ./htdocs/${INSTALLPKG}/sites/all/libraries
           else
               echo -e "${fail}${Cyan}      No User-Provided libraries detected...${no_color}"
           fi
@@ -163,7 +166,7 @@ stages:
           if [ -d ${f} ]; then
               # Will not run if no directories are available
               echo -e "${harpoons}${Cyan}      Installing ${f} User-Provided Contrib Modules ...${no_color}"
-              mv $f ./htdocs/drupal-7.41/sites/all/modules/contrib
+              mv $f ./htdocs/${INSTALLPKG}/sites/all/modules/contrib
           else
               echo -e "${fail}${Cyan}      No User-Provided Contrib Modules detected...${no_color}"
           fi
@@ -173,7 +176,7 @@ stages:
           if [ -d ${f} ]; then
               # Will not run if no directories are available
               echo -e "${harpoons}${Cyan}      Installing ${f} User-Provided Custom Modules ...${no_color}"
-              mv $f ./htdocs/drupal-7.41/sites/all/modules/custom
+              mv $f ./htdocs/${INSTALLPKG}/sites/all/modules/custom
           else
               echo -e "${fail}${Cyan}      No User-Provided Custom Modules detected...${no_color}"
           fi
@@ -183,7 +186,7 @@ stages:
           if [ -d ${f} ]; then
               # Will not run if no directories are available
               echo -e "${harpoons}${Cyan}      Installing ${f} User-Provided Themes ...${no_color}"
-              mv $f ./htdocs/drupal-7.41/sites/all/themes
+              mv $f ./htdocs/${INSTALLPKG}/sites/all/themes
           else
               echo -e "${fail}${Cyan}      No User-Provided Themes detected...${no_color}"
           fi
@@ -194,181 +197,120 @@ stages:
       mv ./bluezone/configtweaks/.profile.d .
       mv ./bluezone/configtweaks/.bp-config .
       mkdir .extensions
+      mkdir .extensions/mod_pagespeed
+      mv ./bluezone/configtweaks/extension.py .extensions/mod_pagespeed
       mv ./bluezone/configtweaks/.php-extensions .
+      mv ./bluezone/configtweaks/custom_apache .
       # Organize the artifact structure to facilitate BMX deploy
       echo -e "${cloud}${Yellow}    Making drupal artifacts ${Cyan}Bluemix ${Yellow}friendly ...${no_color}"
-      mv ./bluezone/configtweaks/.user.ini ./htdocs/drupal-7.41
-      
-      echo -e "${cloud}${Yellow}    Hardening drupal .htaccess ...${no_color}"
-      echo -e "" >> ./htdocs/drupal-7.41/.htaccess
-      echo -e "# Forces a redirect to SSL" >> ./htdocs/drupal-7.41/.htaccess
-      echo -e "RewriteCond %{HTTPS} off" >> ./htdocs/drupal-7.41/.htaccess
-      echo -e "RewriteCond %{HTTP:X-Forwarded-Proto} !https" >> ./htdocs/drupal-7.41/.htaccess
-      echo -e "RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]" >> ./htdocs/drupal-7.41/.htaccess
-      
-      echo -e "" >> ./htdocs/drupal-7.41/.htaccess
-      echo -e "# Reference: https://www.drupal.org/node/287115#comment-936650" >> ./htdocs/drupal-7.41/.htaccess
-      echo -e "FileETag none" >> ./htdocs/drupal-7.41/.htaccess
-      echo -e "# Enforces an Expires header for responses to content" >> ./htdocs/drupal-7.41/.htaccess
-      echo -e "<ifmodule mod_expires.c>" >> ./htdocs/drupal-7.41/.htaccess
-      echo -e "ExpiresActive On" >> ./htdocs/drupal-7.41/.htaccess
-      echo -e "ExpiresDefault A0" >> ./htdocs/drupal-7.41/.htaccess
-      echo -e "ExpiresByType application/x-javascript \"access plus 2 years\"" >> ./htdocs/drupal-7.41/.htaccess
-      echo -e "ExpiresByType application/javascript \"access plus 2 years\"" >> ./htdocs/drupal-7.41/.htaccess
-      echo -e "ExpiresByType text/javascript \"access plus 2 years\"" >> ./htdocs/drupal-7.41/.htaccess
-      echo -e "ExpiresByType text/css \"access plus 2 years\"" >> ./htdocs/drupal-7.41/.htaccess
-      
-      echo -e "# Set up caching on media files for 1 year (forever?)" >> ./htdocs/drupal-7.41/.htaccess
-      echo -e "<FilesMatch \"\.(flv|ico|pdf|avi|mov|ppt|doc|mp3|wmv|wav)$\">" >> ./htdocs/drupal-7.41/.htaccess
-      echo -e "    ExpiresDefault A29030400" >> ./htdocs/drupal-7.41/.htaccess
-      echo -e "</Filesmatch>" >> ./htdocs/drupal-7.41/.htaccess
-      
-      echo -e "# Set up caching on media files for 4 week" >> ./htdocs/drupal-7.41/.htaccess
-      echo -e "<FilesMatch \"\.(gif|jpg|jpeg|png|swf)$\">" >> ./htdocs/drupal-7.41/.htaccess
-      echo -e "    ExpiresDefault A2419200" >> ./htdocs/drupal-7.41/.htaccess
-      echo -e "</Filesmatch>" >> ./htdocs/drupal-7.41/.htaccess
-      
-      echo -e "# Set up 2 week caching on commonly updated files" >> ./htdocs/drupal-7.41/.htaccess
-      echo -e "<FilesMatch \"\.(xml|txt|html|js|css)$\">" >> ./htdocs/drupal-7.41/.htaccess
-      echo -e "    ExpiresDefault A1209600" >> ./htdocs/drupal-7.41/.htaccess
-      echo -e "</Filesmatch>" >> ./htdocs/drupal-7.41/.htaccess
-      
-      echo -e "# Set up 2 week caching on commonly updated files" >> ./htdocs/drupal-7.41/.htaccess
-      echo -e "<FilesMatch \"^(j|cs)s_[0-9a-f]{32}_.+\.(j|cs)s(\.gz)?\">" >> ./htdocs/drupal-7.41/.htaccess
-      echo -e "    ExpiresDefault A1209600" >> ./htdocs/drupal-7.41/.htaccess
-      echo -e "</Filesmatch>" >> ./htdocs/drupal-7.41/.htaccess
-      
-      echo -e "# Force no caching for dynamic files" >> ./htdocs/drupal-7.41/.htaccess
-      echo -e "<FilesMatch \"\.(php|cgi|pl|htm)$\">" >> ./htdocs/drupal-7.41/.htaccess
-      echo -e "    ExpiresActive Off" >> ./htdocs/drupal-7.41/.htaccess
-      echo -e "</Filesmatch>" >> ./htdocs/drupal-7.41/.htaccess
-      echo -e "</ifmodule>" >> ./htdocs/drupal-7.41/.htaccess
-      
-      echo -e "# Sets up cache-control headers for responses to content" >> ./htdocs/drupal-7.41/.htaccess
-      echo -e "<ifmodule mod_headers.c>" >> ./htdocs/drupal-7.41/.htaccess
-      
-      echo -e "# Set up caching on media files for 1 year (forever?)" >> ./htdocs/drupal-7.41/.htaccess
-      echo -e "<FilesMatch \"\.(flv|ico|pdf|avi|mov|ppt|doc|mp3|wmv|wav)$\">" >> ./htdocs/drupal-7.41/.htaccess
-      echo -e "    Header append Cache-Control \"public\"" >> ./htdocs/drupal-7.41/.htaccess
-      echo -e "</Filesmatch>" >> ./htdocs/drupal-7.41/.htaccess
-      
-      echo -e "# Set up caching on media files for 4 week" >> ./htdocs/drupal-7.41/.htaccess
-      echo -e "<FilesMatch \"\.(gif|jpg|jpeg|png|swf)$\">" >> ./htdocs/drupal-7.41/.htaccess
-      echo -e "    Header append Cache-Control \"public\"" >> ./htdocs/drupal-7.41/.htaccess
-      echo -e "</Filesmatch>" >> ./htdocs/drupal-7.41/.htaccess
-      
-      echo -e "# Set up 2 week caching on commonly updated files" >> ./htdocs/drupal-7.41/.htaccess
-      echo -e "<FilesMatch \"\.(xml|txt|html|js|css)$\">" >> ./htdocs/drupal-7.41/.htaccess
-      echo -e "    Header append Cache-Control \"proxy-revalidate\"" >> ./htdocs/drupal-7.41/.htaccess
-      echo -e "</Filesmatch>" >> ./htdocs/drupal-7.41/.htaccess
-      
-      echo -e "# Force no caching for dynamic files" >> ./htdocs/drupal-7.41/.htaccess
-      echo -e "<FilesMatch \"\.(php|cgi|pl|htm)$\">" >> ./htdocs/drupal-7.41/.htaccess
-      echo -e "    Header set Cache-Control \"private, no-cache, no-store, proxy-revalidate, no-transform\"" >> ./htdocs/drupal-7.41/.htaccess
-      echo -e "    Header set Pragma \"no-cache\"" >> ./htdocs/drupal-7.41/.htaccess
-      echo -e "</Filesmatch>" >> ./htdocs/drupal-7.41/.htaccess
-      echo -e "</ifmodule>" >> ./htdocs/drupal-7.41/.htaccess
-      
-      echo -e "# Lets setup some compression for more speed" >> ./htdocs/drupal-7.41/.htaccess
-      echo -e "<ifModule mod_deflate.c>" >> ./htdocs/drupal-7.41/.htaccess
-      echo -e "  <FilesMatch \"\.(js|css)$\">" >> ./htdocs/drupal-7.41/.htaccess
-      echo -e "    SetOutputFilter DEFLATE" >> ./htdocs/drupal-7.41/.htaccess
-      echo -e "  </FilesMatch>" >> ./htdocs/drupal-7.41/.htaccess
-      echo -e "</ifModule>" >> ./htdocs/drupal-7.41/.htaccess
-      
+      mv ./bluezone/configtweaks/.user.ini ./htdocs/${INSTALLPKG}
+
       # Embed config file if provided
       if [ -f "./bluezone/configtweaks/settings.php" ]; then
          echo -e "${tools}${Cyan}    Drupal Config file detected ...${no_color}"
-         mv ./bluezone/configtweaks/settings.php ./htdocs/drupal-7.41/sites/default
+         mv ./bluezone/configtweaks/settings.php ./htdocs/${INSTALLPKG}/sites/default
       else
          echo -e "${tools}${Cyan}    NO Drupal Config file detected, using default ...${no_color}"
-         cp ./htdocs/drupal-7.41/sites/default/default.settings.php ./htdocs/drupal-7.41/sites/default/settings.php
-         echo -e "\$application = getenv(\"VCAP_APPLICATION\");" >> ./htdocs/drupal-7.41/sites/default/settings.php
-         echo -e "\$application_json = json_decode(\$application,true);" >> ./htdocs/drupal-7.41/sites/default/settings.php
-         echo -e "if (isset(\$application_json[\"application_uris\"])) {" >> ./htdocs/drupal-7.41/sites/default/settings.php
-         echo -e "  \$base_url = \"https://\" . \$application_json[\"application_uris\"][0];" >> ./htdocs/drupal-7.41/sites/default/settings.php
-         echo -e "}" >> ./htdocs/drupal-7.41/sites/default/settings.php
-         echo -e "\$services = getenv(\"VCAP_SERVICES\");" >> ./htdocs/drupal-7.41/sites/default/settings.php
-         echo -e "\$services_json = json_decode(\$services,true);" >> ./htdocs/drupal-7.41/sites/default/settings.php
-         echo -e "if (isset(\$services_json)) {" >> ./htdocs/drupal-7.41/sites/default/settings.php
-         echo -e "  if (isset(\$services_json[\"user-provided\"])) {" >> ./htdocs/drupal-7.41/sites/default/settings.php
-         echo -e "    foreach(\$services_json[\"user-provided\"] as \$item) {" >> ./htdocs/drupal-7.41/sites/default/settings.php
-         echo -e "      if (\$item[\"name\"] == \"drupaldb\") {" >> ./htdocs/drupal-7.41/sites/default/settings.php
-         echo -e "         \$postgres_config = \$item[\"credentials\"];" >> ./htdocs/drupal-7.41/sites/default/settings.php
-         echo -e "         list(\$hostname, \$port) = explode(':', \$postgres_config[\"public_hostname\"]);" >> ./htdocs/drupal-7.41/sites/default/settings.php
-         echo -e "         \$dbname = 'compose';" >> ./htdocs/drupal-7.41/sites/default/settings.php
-         echo -e "      } elseif (\$item[\"name\"] == \"drupalredis\") {" >> ./htdocs/drupal-7.41/sites/default/settings.php
-         echo -e "         \$redis_config = \$item[\"credentials\"];" >> ./htdocs/drupal-7.41/sites/default/settings.php
-         echo -e "         list(\$rhostname, \$rport) = explode(':', \$redis_config[\"public_hostname\"]);" >> ./htdocs/drupal-7.41/sites/default/settings.php
+         cp ./htdocs/${INSTALLPKG}/sites/default/default.settings.php ./htdocs/${INSTALLPKG}/sites/default/settings.php
+         echo -e "\$application = getenv(\"VCAP_APPLICATION\");" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
+         echo -e "\$application_json = json_decode(\$application,true);" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
+         echo -e "if (isset(\$application_json[\"application_uris\"])) {" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
+         echo -e "  \$base_url = \"https://\" . \$application_json[\"application_uris\"][0];" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
+         echo -e "}" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
+         echo -e "\$services = getenv(\"VCAP_SERVICES\");" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
+         echo -e "\$services_json = json_decode(\$services,true);" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
+         echo -e "if (isset(\$services_json)) {" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
+         echo -e "  if (isset(\$services_json[\"user-provided\"])) {" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
+         echo -e "    foreach(\$services_json[\"user-provided\"] as \$item) {" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
+         echo -e "      if (\$item[\"name\"] == \"drupaldb\") {" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
+         echo -e "         \$postgres_config = \$item[\"credentials\"];" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
+         echo -e "         list(\$hostname, \$port) = explode(':', \$postgres_config[\"public_hostname\"]);" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
+         echo -e "         \$dbname = 'compose';" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
+         echo -e "      } elseif (\$item[\"name\"] == \"drupalredis\") {" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
+         echo -e "         \$redis_config = \$item[\"credentials\"];" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
+         echo -e "         list(\$rhostname, \$rport) = explode(':', \$redis_config[\"public_hostname\"]);" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
          # Useful only if Redis Caching is desired
          # Reference: http://dropbucket.org/node/242
          # Reference: https://redislabs.com/drupal-redis
-         echo -e "         // Setup Redis Cache for Drupal if service is available" >> ./htdocs/drupal-7.41/sites/default/settings.php
-         echo -e "         define('PREDIS_BASE_PATH', DRUPAL_ROOT . '/sites/all/libraries/predis-1.0.3/');" >> ./htdocs/drupal-7.41/sites/default/settings.php
-         echo -e "         \$conf['redis_client_interface'] = 'Predis';" >> ./htdocs/drupal-7.41/sites/default/settings.php
-         echo -e "         \$conf['redis_client_host'] = \$rhostname;" >> ./htdocs/drupal-7.41/sites/default/settings.php
-         echo -e "         \$conf['redis_client_port'] = \$rport;" >> ./htdocs/drupal-7.41/sites/default/settings.php
-         echo -e "         \$conf['redis_client_password'] = \$redis_config[\"password\"];" >> ./htdocs/drupal-7.41/sites/default/settings.php
-         echo -e "         \$conf['lock_inc'] = 'sites/all/modules/contrib/redis/redis.lock.inc';" >> ./htdocs/drupal-7.41/sites/default/settings.php
-         echo -e "         \$conf['cache_backends'][] = 'sites/all/modules/contrib/redis/redis.autoload.inc';" >> ./htdocs/drupal-7.41/sites/default/settings.php
-         echo -e "         \$conf['cache_default_class'] = 'Redis_Cache';" >> ./htdocs/drupal-7.41/sites/default/settings.php 
-         echo -e "      } elseif (\$item[\"name\"] == \"sendsms\") {" >> ./htdocs/drupal-7.41/sites/default/settings.php
-         echo -e "         \$twilio_config = \$item[\"credentials\"];" >> ./htdocs/drupal-7.41/sites/default/settings.php
-         echo -e "         \$conf['twiliophp_account_sid'] = \$twilio_config[\"accountSID\"];" >> ./htdocs/drupal-7.41/sites/default/settings.php
-         echo -e "         \$conf['twiliophp_auth_token'] = \$twilio_config[\"authToken\"];" >> ./htdocs/drupal-7.41/sites/default/settings.php
-         echo -e "      }" >> ./htdocs/drupal-7.41/sites/default/settings.php
-         echo -e "    }" >> ./htdocs/drupal-7.41/sites/default/settings.php
-         echo -e "  }" >> ./htdocs/drupal-7.41/sites/default/settings.php
-         echo -e "  if (isset(\$services_json[\"sendgrid\"])) {" >> ./htdocs/drupal-7.41/sites/default/settings.php
-         echo -e "    \$sendgrid_config = \$services_json[\"sendgrid\"][0][\"credentials\"];" >> ./htdocs/drupal-7.41/sites/default/settings.php
-         echo -e "    # Useful for Sendgrid SMTP Support" >> ./htdocs/drupal-7.41/sites/default/settings.php
-         echo -e "    \$conf['mail_system']['default-system'] = 'SmtpMailSystem';" >> ./htdocs/drupal-7.41/sites/default/settings.php
-         echo -e "    \$conf['smtp_on'] = TRUE;" >> ./htdocs/drupal-7.41/sites/default/settings.php
-         echo -e "    \$conf['smtp_host'] = \$sendgrid_config[\"hostname\"];" >> ./htdocs/drupal-7.41/sites/default/settings.php
-         echo -e "    \$conf['smtp_port'] = 587;" >> ./htdocs/drupal-7.41/sites/default/settings.php
-         echo -e "    \$conf['smtp_username'] = \$sendgrid_config[\"username\"];" >> ./htdocs/drupal-7.41/sites/default/settings.php
-         echo -e "    \$conf['smtp_password'] = \$sendgrid_config[\"password\"];" >> ./htdocs/drupal-7.41/sites/default/settings.php
-         echo -e "    \$conf['smtp_from'] = 'unmonitored-app-message-do-not-reply@myapp.mybluemix.net';" >> ./htdocs/drupal-7.41/sites/default/settings.php
-         echo -e "    \$conf['smtp_fromname'] = 'Bluemix Drupal Deploy';" >> ./htdocs/drupal-7.41/sites/default/settings.php
-         echo -e "  }" >> ./htdocs/drupal-7.41/sites/default/settings.php
-         echo -e "}" >> ./htdocs/drupal-7.41/sites/default/settings.php
-         echo -e "\$databases = array (" >> ./htdocs/drupal-7.41/sites/default/settings.php
-         echo -e "  'default' =>" >> ./htdocs/drupal-7.41/sites/default/settings.php
-         echo -e "  array (" >> ./htdocs/drupal-7.41/sites/default/settings.php
-         echo -e "    'default' =>" >> ./htdocs/drupal-7.41/sites/default/settings.php
-         echo -e "    array (" >> ./htdocs/drupal-7.41/sites/default/settings.php
-         echo -e "      'driver' => 'pgsql'," >> ./htdocs/drupal-7.41/sites/default/settings.php
-         echo -e "      'database' => \$dbname," >> ./htdocs/drupal-7.41/sites/default/settings.php
-         echo -e "      'username' => \$postgres_config[\"username\"]," >> ./htdocs/drupal-7.41/sites/default/settings.php
-         echo -e "      'password' => \$postgres_config[\"password\"]," >> ./htdocs/drupal-7.41/sites/default/settings.php
-         echo -e "      'host' => \$hostname," >> ./htdocs/drupal-7.41/sites/default/settings.php
-         echo -e "      'port' => \$port," >> ./htdocs/drupal-7.41/sites/default/settings.php
-         echo -e "      'prefix' => 'main_'" >> ./htdocs/drupal-7.41/sites/default/settings.php
-         echo -e "    )" >> ./htdocs/drupal-7.41/sites/default/settings.php
-         echo -e "  )" >> ./htdocs/drupal-7.41/sites/default/settings.php
-         echo -e ");" >> ./htdocs/drupal-7.41/sites/default/settings.php
-         echo -e "" >> ./htdocs/drupal-7.41/sites/default/settings.php
-         echo -e "//Tell Drupal it is behind a proxy" >> ./htdocs/drupal-7.41/sites/default/settings.php
-         echo -e "\$conf['reverse_proxy'] = TRUE;" >> ./htdocs/drupal-7.41/sites/default/settings.php
-         echo -e "\$conf['cache_backends'][] = 'includes/cache-install.inc';" >> ./htdocs/drupal-7.41/sites/default/settings.php
-         echo -e "\$conf['cache_class_external_varnish_page'] = 'VarnishCache';" >> ./htdocs/drupal-7.41/sites/default/settings.php
-         echo -e "\$conf['cache_class_cache_page'] = 'DrupalFakeCache';" >> ./htdocs/drupal-7.41/sites/default/settings.php
-         echo -e "\$conf['cache_backends'][] = 'sites/all/modules/contrib/varnish/varnish.cache.inc';" >> ./htdocs/drupal-7.41/sites/default/settings.php
-         echo -e "// Tell Drupal what addresses the proxy server(s) use." >> ./htdocs/drupal-7.41/sites/default/settings.php
-         echo -e "\$conf['reverse_proxy_addresses'] = array('127.0.0.1');" >> ./htdocs/drupal-7.41/sites/default/settings.php
-         echo -e "\$conf['page_cache_invoke_hooks'] = FALSE;" >> ./htdocs/drupal-7.41/sites/default/settings.php
-         echo -e "\$conf['cache'] = 1;" >> ./htdocs/drupal-7.41/sites/default/settings.php
-         echo -e "\$conf['cache_lifetime'] = 0;" >> ./htdocs/drupal-7.41/sites/default/settings.php
-         echo -e "\$conf['page_cache_maximum_age'] = 600;" >> ./htdocs/drupal-7.41/sites/default/settings.php
-         echo -e "\$conf['cache_class_cache_form'] = 'DrupalDatabaseCache';" >> ./htdocs/drupal-7.41/sites/default/settings.php
-         echo -e "\$conf['omit_vary_cookie'] = TRUE;" >> ./htdocs/drupal-7.41/sites/default/settings.php
-         echo -e "drupal_fast_404();" >> ./htdocs/drupal-7.41/sites/default/settings.php
-         echo -e "\$conf['drupal_http_request_fails'] = FALSE;" >> ./htdocs/drupal-7.41/sites/default/settings.php
-         echo -e "\$conf['allow_authorize_operations'] = FALSE;" >> ./htdocs/drupal-7.41/sites/default/settings.php
-         echo -e "// Useful for CloudFlare Spam Control" >> ./htdocs/drupal-7.41/sites/default/settings.php
-         echo -e "if (isset(\$_SERVER['HTTP_CF_CONNECTING_IP'])) {" >> ./htdocs/drupal-7.41/sites/default/settings.php
-         echo -e "  \$_SERVER['REMOTE_ADDR'] = \$_SERVER['HTTP_CF_CONNECTING_IP'];" >> ./htdocs/drupal-7.41/sites/default/settings.php
-         echo -e "}" >> ./htdocs/drupal-7.41/sites/default/settings.php
+         echo -e "         // Setup Redis Cache for Drupal if service is available" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
+         echo -e "         define('PREDIS_BASE_PATH', DRUPAL_ROOT . '/sites/all/libraries/predis-1.0.3/');" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
+         echo -e "         \$conf['redis_client_interface'] = 'Predis';" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
+         echo -e "         \$conf['redis_client_host'] = \$rhostname;" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
+         echo -e "         \$conf['redis_client_port'] = \$rport;" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
+         echo -e "         \$conf['redis_client_password'] = \$redis_config[\"password\"];" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
+         echo -e "         \$conf['lock_inc'] = 'sites/all/modules/contrib/redis/redis.lock.inc';" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
+         echo -e "         \$conf['cache_backends'][] = 'sites/all/modules/contrib/redis/redis.autoload.inc';" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
+         echo -e "         \$conf['cache_class_cache_admin_menu'] = 'Redis_Cache';" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
+         echo -e "         \$conf['cache_class_cache'] = 'Redis_Cache';" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
+         echo -e "         \$conf['cache_class_cache_bootstrap'] = 'Redis_Cache';" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
+         echo -e "         \$conf['cache_class_cache_menu'] = 'Redis_Cache';" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
+         echo -e "         \$conf['cache_class_cache_block'] = 'Redis_Cache';" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
+         echo -e "         \$conf['cache_class_cache_content'] = 'Redis_Cache';" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
+         echo -e "         \$conf['cache_class_cache_filter'] = 'Redis_Cache';" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
+         echo -e "         \$conf['cache_class_cache_form'] = 'Redis_Cache';" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
+         echo -e "         \$conf['cache_default_class'] = 'Redis_Cache';" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
+         echo -e "         // If you use Entity Cache, insert this" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
+         echo -e "         \$conf['cache_entity_node'] = 'Redis_Cache';" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
+         echo -e "         \$conf['cache_entity_file'] = 'Redis_Cache';" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
+         echo -e "         \$conf['cache_entity_taxonomy_term'] = 'Redis_Cache';" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
+         echo -e "         \$conf['cache_entity_taxonomy_vocabulary'] = 'Redis_Cache';" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
+         echo -e "      } elseif (\$item[\"name\"] == \"sendsms\") {" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
+         echo -e "         \$twilio_config = \$item[\"credentials\"];" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
+         echo -e "         \$conf['twiliophp_account_sid'] = \$twilio_config[\"accountSID\"];" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
+         echo -e "         \$conf['twiliophp_auth_token'] = \$twilio_config[\"authToken\"];" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
+         echo -e "      }" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
+         echo -e "    }" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
+         echo -e "  }" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
+         echo -e "  if (isset(\$services_json[\"sendgrid\"])) {" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
+         echo -e "    \$sendgrid_config = \$services_json[\"sendgrid\"][0][\"credentials\"];" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
+         echo -e "    # Useful for Sendgrid SMTP Support" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
+         echo -e "    \$conf['mail_system']['default-system'] = 'SmtpMailSystem';" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
+         echo -e "    \$conf['smtp_on'] = TRUE;" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
+         echo -e "    \$conf['smtp_host'] = \$sendgrid_config[\"hostname\"];" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
+         echo -e "    \$conf['smtp_port'] = 587;" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
+         echo -e "    \$conf['smtp_username'] = \$sendgrid_config[\"username\"];" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
+         echo -e "    \$conf['smtp_password'] = \$sendgrid_config[\"password\"];" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
+         echo -e "    \$conf['smtp_from'] = 'unmonitored-app-message-do-not-reply@myapp.mybluemix.net';" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
+         echo -e "    \$conf['smtp_fromname'] = 'Bluemix Drupal Deploy';" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
+         echo -e "  }" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
+         echo -e "}" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
+         echo -e "\$databases = array (" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
+         echo -e "  'default' =>" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
+         echo -e "  array (" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
+         echo -e "    'default' =>" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
+         echo -e "    array (" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
+         echo -e "      'driver' => 'pgsql'," >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
+         echo -e "      'database' => \$dbname," >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
+         echo -e "      'username' => \$postgres_config[\"username\"]," >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
+         echo -e "      'password' => \$postgres_config[\"password\"]," >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
+         echo -e "      'host' => \$hostname," >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
+         echo -e "      'port' => \$port," >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
+         echo -e "      'prefix' => 'main_'" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
+         echo -e "    )" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
+         echo -e "  )" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
+         echo -e ");" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
+         echo -e "" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
+         echo -e "//Tell Drupal it is behind a proxy" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
+         echo -e "\$conf['reverse_proxy'] = TRUE;" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
+         echo -e "\$conf['cache_backends'][] = 'includes/cache-install.inc';" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
+         echo -e "\$conf['cache_class_external_varnish_page'] = 'VarnishCache';" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
+         echo -e "\$conf['cache_class_cache_page'] = 'DrupalDatabaseCache';" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
+         echo -e "\$conf['cache_backends'][] = 'sites/all/modules/contrib/varnish/varnish.cache.inc';" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
+         echo -e "// Tell Drupal what addresses the proxy server(s) use." >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
+         echo -e "\$conf['reverse_proxy_addresses'] = array('127.0.0.1');" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
+         echo -e "\$conf['page_cache_invoke_hooks'] = FALSE;" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
+         echo -e "\$conf['cache'] = 1;" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
+         echo -e "\$conf['cache_lifetime'] = 0;" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
+         echo -e "\$conf['page_cache_maximum_age'] = 600;" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
+         echo -e "\$conf['cache_class_cache_form'] = 'DrupalDatabaseCache';" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
+         echo -e "\$conf['omit_vary_cookie'] = TRUE;" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
+         echo -e "drupal_fast_404();" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
+         echo -e "\$conf['drupal_http_request_fails'] = FALSE;" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
+         echo -e "\$conf['allow_authorize_operations'] = FALSE;" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
+         echo -e "// Useful for CloudFlare Spam Control" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
+         echo -e "if (isset(\$_SERVER['HTTP_CF_CONNECTING_IP'])) {" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
+         echo -e "  \$_SERVER['REMOTE_ADDR'] = \$_SERVER['HTTP_CF_CONNECTING_IP'];" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
+         echo -e "}" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
       fi
       
       # Cleaning up
@@ -381,7 +323,7 @@ stages:
       echo -e "${tools}${Yellow}    Generating config helper download script...${no_color}"
       echo -e "#!/bin/bash" > fetchConfig.sh
       echo -e "rm ./bluezone/configtweaks/settings.php" >> fetchConfig.sh
-      echo -e "cf files${PROJECT_NAME[1]} /app/htdocs/drupal-7.41/sites/default/settings.php > ./bluezone/configtweaks/settings.php" >> fetchConfig.sh
+      echo -e "cf files${PROJECT_NAME[1]} /app/htdocs/${INSTALLPKG}/sites/default/settings.php > ./bluezone/configtweaks/settings.php" >> fetchConfig.sh
       echo -e "sed -i -e '1,3d' ./bluezone/configtweaks/settings.php" >> fetchConfig.sh
       chmod +x fetchConfig.sh
       echo -e "${present} ${beers}${Green}  Way to go! Your Drupal Assembly present is ready!"

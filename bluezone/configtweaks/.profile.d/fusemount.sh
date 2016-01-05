@@ -27,7 +27,7 @@ if [ -n "${SSHFS_HOST+set}" ]; then
     echo -e "${beer}${Cyan}    Existing Identity file detected."
   else
     if [ -n "${SSHFS_PRIV+set}" ]; then
-      echo -e "${tools}${Yellow}    Creating local file from provided Private Key Env Var ..."
+      echo -e "${tools}${Yellow}    Persisting Private Key Env Var to file id_rsa ..."
       echo "$SSHFS_PRIV" > "/home/vcap/app/.profile.d/id_rsa"
     else
       echo -e "${fail}${Red}    User-provided Env Var SSHFS_PRIV not set!"
@@ -37,9 +37,10 @@ if [ -n "${SSHFS_HOST+set}" ]; then
   chmod 600 /home/vcap/app/.profile.d/id_rsa
   echo -e "${delivery}${Yellow}    Adding the key to the ssh-agent ..."
   eval $(ssh-agent)
-  ssh-add /home/vcap/app/.profile.d/id_rsa
+  ssh-add /home/vcap/app/.profile.d/id_rsa 2>/dev/null
   echo -e "${delivery}${Yellow}    Generating known_hosts file ..."
-  ssh-keyscan -t RSA -H ${SSHFS_HOST} > "/home/vcap/app/.profile.d/known_hosts"
+  SSHKey=$(ssh-keyscan -t RSA -H ${SSHFS_HOST} 2> /dev/null)
+  echo $SSHKey > "/home/vcap/app/.profile.d/known_hosts"
   echo -e "${delivery}${Yellow}    Creating mount location ..."
   mkdir -p /home/vcap/misc
   echo -e "${delivery}${Yellow}  Initiating SSHFS mount ..."
@@ -52,7 +53,7 @@ if [ -n "${SSHFS_HOST+set}" ]; then
     echo -e "${fail}${Red}    User-provided Env Var SSHFS_USER AND/OR SSHFS_DIR not set!"
   fi
   if [ -n "${SSHFS_NAMESPACE+set}" ]; then
-    echo -e "${cloud}${Yellow}  Current SSHFS Namespace is ${Cyan}${SSHFS_NAMESPACE}"
+    echo -e "${cloud}${Yellow}  Current deployed application URI is ${Cyan}${SSHFS_NAMESPACE}"
     echo -e "${delivery}${Yellow}  Creating Domain Namespace within mounted location ..."
     mkdir -p /home/vcap/misc/${SSHFS_NAMESPACE}
     echo -e "${delivery}${Yellow}  Creating sites folder within mounted Domain Namespace ..."
@@ -66,8 +67,9 @@ if [ -n "${SSHFS_HOST+set}" ]; then
     # cp -R /home/vcap/app/htdocs/drupal-7.41/mirage/. /home/vcap/app/htdocs/drupal-7.41/sites
     # Comment:  scp was too slow, even with 180 sec extended health check
     # scp -r /home/vcap/app/htdocs/drupal-7.41/mirage/. /home/vcap/app/htdocs/drupal-7.41/sites
-    # Comment:  Tar over ssh fits within the 180 second timeout health check.  ~135 seconds to move all default modules
-    # If health check timeouts occur during deploy, one mitigation is to reduce the amount of "desired" modules within the default assembly.
+    # Comment:  Tar over ssh is also too slow for the health check timeout, but it is the fastest of the 3 approaches.
+    # To overcome the health check timeout limitation, we modify our deploy script to push the application as a worker (e.g. --no-route )
+    # An app pushed as a worker is not subject to the health check timeout.
     # In theory, now that we are using a SSHFS file storage, installation via website should persist.  This should also enable multiple cf instances
     echo -e "${eyes}${Cyan}  Inspecting mounted Domain Namespace for existing site files ..."
     if [ -f "/home/vcap/misc/${SSHFS_NAMESPACE}/sites/default/settings.php" ]; then

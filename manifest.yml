@@ -7,7 +7,7 @@ applications:
   stack: cflinuxfs2
   buildpack: https://github.com/chregu/cf-php-varnish-buildpack
   env:
-    VARNISH_MEMORY_LIMIT: 1G
+    VARNISH_MEMORY_LIMIT: 2G
     SSHFS_NAMESPACE: "drupal.on.ibm.bluemix"
   services:
   -  drupaldb

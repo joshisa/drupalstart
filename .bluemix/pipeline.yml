@@ -460,9 +460,9 @@ stages:
            # tar over ssh for optimal speed within the .profile.d fusemount script.  Unfortunately, because of the
            # number of pre-included modules and themes - this transfer can exceed 180s.  To make this easier,
            # we'll create a flag within the manifest.yml to signify user intention and make this process easier.
-           cf push "${CF_APP}" -t 180 --no-route && echo -e "${beer} ${beers}${Green}  Congrats! Your secure Drupal deploy is now using a SSHFS mount for site config!  Remember to toggle the env var SSHFS_FIRSTSETUP at the top of this script to enable routes and redeploy.${no_color}" && echo -e "${beer} ${beers}${Green}  finis coronat opus${no_color}" && break
+           cf push "${CF_APP}" -t 180 --no-route && echo -e "${beer} ${beers}${Green}  Congrats! Your secure Drupal deployed successfully as a --no-route worker. ${no_color}" && echo -e "${beer} ${beers}${Green} Step 2 ... Please set your user-provided SSHFS environment variables for this app and redeploy again.${no_color}" && echo -e "${beer} ${beers}${Green} Step 3 ... Toggle the SSHFS_FIRSTSETUP variable at the top of this script and redeploy one more time. ${no_color}" && echo -e "${beer} ${beers}${Green}  finis coronat opus${no_color}" && break
          else
-           cf push "${CF_APP}" -t 180 && echo -e "${beer} ${beers}${Green}  Congrats! Your secure Drupal deploy is up and running!${no_color}" && echo -e "${beer} ${beers}${Green}  finis coronat opus${no_color}" && break
+           cf push "${CF_APP}" -t 180 && echo -e "${beer} ${beers}${Green}  Congrats! Your secure, optimized base Drupal 7 deploy is up and running on IBM Bluemix! Go to the app url and start the web installer (e.g.  appname.mybluemix.net/install.php) ${no_color}" && echo -e "${beer} ${beers}${Green}  finis coronat opus${no_color}" && break
          fi
          p=$[$p+1]
          sleep 10

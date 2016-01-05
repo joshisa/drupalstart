@@ -369,7 +369,7 @@ stages:
       # http://www.eclipse.org/legal/epl-v10.html
       # For some reason, the deploy stage shell has tracing turned on.  Lets turn it off
       set +x
-      export SSHFS_FIRSTSETUP=yes
+      export SSHFS_FIRSTSETUP=no
       ##########
       # Colors - Lets have some fun ##
       ##########

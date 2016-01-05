@@ -2,7 +2,7 @@
   "PHP_EXTENSIONS": ["bz2", "zlib", "curl", "mcrypt", "mbstring", "mysqli", "gd", "zip", "pdo", "pdo_mysql", "redis", "pgsql", "pdo_pgsql", "sockets", "openssl", "xhprof"],
   "PHP_VERSION": "{PHP_56_LATEST}",
   "WEBDIR": "htdocs/drupal-7.41",
-  "CACHE_SERVER" : "novarnish",
+  "CACHE_SERVER" : "varnish",
   "VARNISHNCSA": "yes",
   "VARNISHNCSA_OPTIONS": "-m 'RxHeader:Host: .*' -F '%t \"%{X-Balanced-For}i\" \"%r\" %s %b \"%{Referer}i\" %{Varnish:hitmiss}x %{VCL_Log:Backend}x %D %{Accept-Language}i \"%{User-agent}i\" %u'"
 }

@@ -208,8 +208,8 @@ sub authcache_recv {
 
   // /* Example 1: Never cache admin/cron/user pages. */
   if (
-  		// req.url ~ "^/admin$" ||
-  		// req.url ~ "^/admin/.*$" ||
+  		req.url ~ "^/admin$" ||
+  		req.url ~ "^/admin/.*$" ||
        	req.url ~ "^/batch.*$" ||
        	req.url ~ "^/comment/edit.*$" ||
        	req.url ~ "^/cron\.php$" ||

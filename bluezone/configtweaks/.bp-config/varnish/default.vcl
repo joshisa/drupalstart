@@ -40,7 +40,8 @@
 /***
  * Include Authcache Varnish core.vcl
  */
-include "./authcache_core.vcl";
+
+include "authcache_core.vcl";
 
 backend default {
     .host = "127.0.0.1";
@@ -48,6 +49,15 @@ backend default {
     .first_byte_timeout     = 300s;   # How long to wait before we receive a first byte from our backend?
     .connect_timeout        = 10s;     # How long to wait for a backend connection?
     .between_bytes_timeout  = 10s;     # How long to wait between bytes received from our backend?
+}
+
+/*
+ * Not really necessary for Cloud Foundry ... but objects needs to be defined for later if statements.
+ */
+acl internal {
+  # "192.10.0.0"/24;
+  #  For remote access, add your IP address here.
+  #  Ex: 162.xxx.xx.xx
 }
 
 /**
@@ -84,20 +94,20 @@ sub authcache_key_cid {
   }
 
   /* Optional: When using authcache_esi alongside with authcache_ajax */
-  // if (req.http.Cookie ~ "(^|;)\s*has_js=1\s*($|;)") {
-  //   set req.http.X-Authcache-Key-CID = req.http.X-Authcache-Key-CID + "+js";
-  // }
-  // else {
-  //   set req.http.X-Authcache-Key-CID = req.http.X-Authcache-Key-CID + "-js";
-  // }
+   if (req.http.Cookie ~ "(^|;)\s*has_js=1\s*($|;)") {
+     set req.http.X-Authcache-Key-CID = req.http.X-Authcache-Key-CID + "+js";
+   }
+   else {
+     set req.http.X-Authcache-Key-CID = req.http.X-Authcache-Key-CID + "-js";
+   }
 
   /* Optional: When serving HTTP/HTTPS */
-  // if (req.http.X-Forwarded-Proto ~ "(?i)https") {
-  //   set req.http.X-Authcache-Key-CID = req.http.X-Authcache-Key-CID + "+ssl";
-  // }
-  // else {
-  //   set req.http.X-Authcache-Key-CID = req.http.X-Authcache-Key-CID + "-ssl";
-  // }
+   if (req.http.X-Forwarded-Proto ~ "(?i)https") {
+     set req.http.X-Authcache-Key-CID = req.http.X-Authcache-Key-CID + "+ssl";
+   }
+   else {
+     set req.http.X-Authcache-Key-CID = req.http.X-Authcache-Key-CID + "-ssl";
+   }
 }
 
 /**
@@ -113,9 +123,9 @@ sub authcache_recv {
   set req.grace = 6h;
  
   # Pipe these paths directly to Apache for streaming.
-  #if (req.url ~ "^/admin/content/backup_migrate/export") {
-  #  return (pipe);
-  #}
+  if (req.url ~ "^/admin/content/backup_migrate/export") {
+    return (pipe);
+  }
  
   if (req.restarts == 0) {
     if (req.http.x-forwarded-for) {
@@ -125,26 +135,15 @@ sub authcache_recv {
       set req.http.X-Forwarded-For = client.ip;
     }
   }
- 
-  # Do not cache these paths.
-  if (req.url ~ "^/status\.php$" ||
-      req.url ~ "^/update\.php$" ||
-      req.url ~ "^/install\.php$" ||
-      req.url ~ "^/admin$" ||
-      req.url ~ "^/admin/.*$" ||
-      req.url ~ "^/flag/.*$" ||
-      req.url ~ "^.*/ajax/.*$" ||
-      req.url ~ "^.*/ahah/.*$") {
-       return (pass);
+  
+  # Do not allow outside access to cron.php or install.php.
+  if (req.url ~ "^/(cron|install)\.php$" && !client.ip ~ internal) {
+    # Have Varnish throw the error directly.
+    error 404 "Page not found.";
+    # Use a custom error page that you've defined in Drupal at the path "404".
+    set req.url = "/404";
   }
  
-  # Do not allow outside access to cron.php or install.php.
-  #if (req.url ~ "^/(cron|install)\.php$" && !client.ip ~ internal) {
-    # Have Varnish throw the error directly.
-  #  error 404 "Page not found.";
-    # Use a custom error page that you've defined in Drupal at the path "404".
-    # set req.url = "/404";
-  #}
  
   # Always cache the following file types for all users. This list of extensions
   # appears twice, once here and again in vcl_fetch so make sure you edit both
@@ -157,7 +156,7 @@ sub authcache_recv {
   # list the ones that Drupal does need, the SESS and NO_CACHE. If, after
   # running this code we find that either of these two cookies remains, we
   # will pass as the page cannot be cached.
-  if (req.http.Cookie) {
+   if (req.http.Cookie) {
     # 1. Append a semi-colon to the front of the cookie string.
     # 2. Remove all spaces that appear after semi-colons.
     # 3. Match the cookies we want to keep, adding the space we removed
@@ -172,18 +171,13 @@ sub authcache_recv {
     set req.http.Cookie = regsuball(req.http.Cookie, ";[^ ][^;]*", "");
     set req.http.Cookie = regsuball(req.http.Cookie, "^[; ]+|[; ]+$", "");
  
-    if (req.http.Cookie == "") {
+   	if (req.http.Cookie == "") {
       # If there are no remaining cookies, remove the cookie header. If there
       # aren't any cookie headers, Varnish's default behavior will be to cache
       # the page.
       unset req.http.Cookie;
-    }
-    else {
-      # If there is any cookies left (a session or NO_CACHE cookie), do not
-      # cache the page. Pass it on to Apache directly.
-      return (pass);
-    }
-  }
+   	}
+   }
   
   // TODO: Add purge handler, access checks and other stuff relying on
   // non-standard HTTP verbs here.
@@ -213,26 +207,29 @@ sub authcache_recv {
   // TODO: Place your custom *pass*-rules here. Do *not* introduce any lookups.
 
   // /* Example 1: Never cache admin/cron/user pages. */
-  // if (
-  //     req.url ~ "^/admin$" ||
-  //     req.url ~ "^/admin/.*$" ||
-  //     req.url ~ "^/batch.*$" ||
-  //     req.url ~ "^/comment/edit.*$" ||
-  //     req.url ~ "^/cron\.php$" ||
-  //     req.url ~ "^/file/ajax/.*" ||
-  //     req.url ~ "^/install\.php$" ||
-  //     req.url ~ "^/node/*/edit$" ||
-  //     req.url ~ "^/node/*/track$" ||
-  //     req.url ~ "^/node/add/.*$" ||
-  //     req.url ~ "^/system/files/*.$" ||
-  //     req.url ~ "^/system/temporary.*$" ||
-  //     req.url ~ "^/tracker$" ||
-  //     req.url ~ "^/update\.php$" ||
-  //     req.url ~ "^/user$" ||
-  //     req.url ~ "^/user/.*$" ||
-  //     req.url ~ "^/users/.*$") {
-  //   return (pass);
-  // }
+  if (
+  		// req.url ~ "^/admin$" ||
+  		// req.url ~ "^/admin/.*$" ||
+       	req.url ~ "^/batch.*$" ||
+       	req.url ~ "^/comment/edit.*$" ||
+       	req.url ~ "^/cron\.php$" ||
+        req.url ~ "^/file/ajax/.*" ||
+        req.url ~ "^/install\.php$" ||
+        req.url ~ "^/node/*/edit$" ||
+        req.url ~ "^/node/*/track$" ||
+        req.url ~ "^/node/add/.*$" ||
+        req.url ~ "^/status\.php$" ||
+        req.url ~ "^/system/files/*.$" ||
+        req.url ~ "^/system/temporary.*$" ||
+        req.url ~ "^/update\.php$" ||
+        req.url ~ "^/tracker$" ||
+        req.url ~ "^/update\.php$" ||
+        req.url ~ "^/user$" ||
+        req.url ~ "^/user/.*$" ||
+        req.url ~ "^/users/.*$"
+    ) {
+      		return (pass);
+  	  }
 
   // /**
   //  * Example 2: Remove all but
@@ -282,11 +279,13 @@ sub authcache_recv {
   //  *   cache bins according to language / region / device type.
   //  * - The Authcache Debug widget is enabled for all users (including anonymous).
   //  */
-  // if (!req.http.X-Authcache-Get-Key) {
-  //   set req.http.X-Authcache-Get-Key = "get";
-  // }
+  
+  if (!req.http.X-Authcache-Get-Key) {
+    set req.http.X-Authcache-Get-Key = "get";
+  }
 }
- 
+
+# VCL_DELIVER 
 # Set a header to track a cache HIT/MISS.
 sub vcl_deliver {
   if (obj.hits > 0) {
@@ -296,10 +295,12 @@ sub vcl_deliver {
     set resp.http.X-Varnish-Cache = "MISS";
   }
 }
- 
+
+# VCL_FETCH 
 # Code determining what to do when serving items from the Apache servers.
 # beresp == Back-end response from the web server.
 sub vcl_fetch {
+  
   # We need this to cache 404s, 301s, 500s. Otherwise, depending on backend but
   # definitely in Drupal's case these responses are not cacheable by default.
   if (beresp.status == 404 || beresp.status == 301 || beresp.status == 500) {
@@ -313,12 +314,39 @@ sub vcl_fetch {
   if (req.url ~ "(?i)\.(pdf|asc|dat|txt|doc|xls|ppt|tgz|csv|png|gif|jpeg|jpg|ico|swf|css|js)(\?.*)?$") {
     unset beresp.http.set-cookie;
   }
+  
+  # Compress content before storing it in cache. Compress text, js, css, and web fonts.
+  if (beresp.http.content-type ~ "(text|application/javascript|text/css|application/x-font-ttf|application/x-font-opentype|application/vnd.ms-fontobject)") {
+    set beresp.do_gzip = true;
+  }
  
   # Allow items to be stale if needed.
   set beresp.grace = 6h;
+  
+  # Varnish determined the object was not cacheable
+  if (beresp.ttl <= 0s) {
+    set beresp.http.X-Cacheable = "NO:Not Cacheable";
+
+  # You don't wish to cache content for logged in users
+  } elsif (req.http.Cookie ~ "(UserID|_session)") {
+    set beresp.http.X-Cacheable = "NO:Got Session";
+    return(hit_for_pass);  
+
+  # You are respecting the Cache-Control=private header from the backend
+  } elsif (beresp.http.Cache-Control ~ "private") {
+    set beresp.http.X-Cacheable = "NO:Cache-Control=private";
+    return(hit_for_pass);
+    
+  # Varnish determined the object was cacheable
+  } else {  
+    set beresp.http.X-Cacheable = "YES";
+  }
+  
+  return(deliver);
 }
  
 # In the event of an error, show friendlier messages.
+# VCL_ERROR
 sub vcl_error {
   # Redirect to some other URL in the case of a homepage failure.
   #if (req.url ~ "^/?$") {
@@ -352,6 +380,7 @@ sub vcl_error {
   return (deliver);
 }
 
+# VCL_HASH
 sub vcl_hash {
   if (req.http.Cookie) {
     hash_data(req.http.Cookie);
@@ -361,118 +390,3 @@ sub vcl_hash {
     hash_data(req.http.x-forwarded-proto);
   }
 }
- 
-#
-# Below is a commented-out copy of the default VCL logic.  If you
-# redefine any of these subroutines, the built-in logic will be
-# appended to your code.
-# sub vcl_recv {
-#     if (req.restarts == 0) {
-#   if (req.http.x-forwarded-for) {
-#       set req.http.X-Forwarded-For =
-#       req.http.X-Forwarded-For + ", " + client.ip;
-#   } else {
-#       set req.http.X-Forwarded-For = client.ip;
-#   }
-#     }
-#     if (req.request != "GET" &&
-#       req.request != "HEAD" &&
-#       req.request != "PUT" &&
-#       req.request != "POST" &&
-#       req.request != "TRACE" &&
-#       req.request != "OPTIONS" &&
-#       req.request != "DELETE") {
-#         /* Non-RFC2616 or CONNECT which is weird. */
-#         return (pipe);
-#     }
-#     if (req.request != "GET" && req.request != "HEAD") {
-#         /* We only deal with GET and HEAD by default */
-#         return (pass);
-#     }
-#     if (req.http.Authorization || req.http.Cookie) {
-#         /* Not cacheable by default */
-#         return (pass);
-#     }
-#     return (lookup);
-# }
-#
-# sub vcl_pipe {
-#     # Note that only the first request to the backend will have
-#     # X-Forwarded-For set.  If you use X-Forwarded-For and want to
-#     # have it set for all requests, make sure to have:
-#     # set bereq.http.connection = "close";
-#     # here.  It is not set by default as it might break some broken web
-#     # applications, like IIS with NTLM authentication.
-#     return (pipe);
-# }
-#
-# sub vcl_pass {
-#     return (pass);
-# }
-#
-# sub vcl_hash {
-#     hash_data(req.url);
-#     if (req.http.host) {
-#         hash_data(req.http.host);
-#     } else {
-#         hash_data(server.ip);
-#     }
-#     return (hash);
-# }
-#
-# sub vcl_hit {
-#     return (deliver);
-# }
-#
-# sub vcl_miss {
-#     return (fetch);
-# }
-#
-# sub vcl_fetch {
-#     if (beresp.ttl <= 0s ||
-#         beresp.http.Set-Cookie ||
-#         beresp.http.Vary == "*") {
-#       /*
-#        * Mark as "Hit-For-Pass" for the next 2 minutes
-#        */
-#       set beresp.ttl = 120 s;
-#       return (hit_for_pass);
-#     }
-#     return (deliver);
-# }
-#
-# sub vcl_deliver {
-#     return (deliver);
-# }
-#
-# sub vcl_error {
-#     set obj.http.Content-Type = "text/html; charset=utf-8";
-#     set obj.http.Retry-After = "5";
-#     synthetic {"
-# <?xml version="1.0" encoding="utf-8"?>
-# <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
-#  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
-# <html>
-#   <head>
-#     <title>"} + obj.status + " " + obj.response + {"</title>
-#   </head>
-#   <body>
-#     <h1>Error "} + obj.status + " " + obj.response + {"</h1>
-#     <p>"} + obj.response + {"</p>
-#     <h3>Guru Meditation:</h3>
-#     <p>XID: "} + req.xid + {"</p>
-#     <hr>
-#     <p>Varnish cache server</p>
-#   </body>
-# </html>
-# "};
-#     return (deliver);
-# }
-#
-# sub vcl_init {
-#   return (ok);
-# }
-#
-# sub vcl_fini {
-#   return (ok);
-# }

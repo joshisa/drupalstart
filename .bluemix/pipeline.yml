@@ -266,8 +266,8 @@ stages:
            echo -e "         \$conf['cache_entity_taxonomy_vocabulary'] = 'Redis_Cache';" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
            echo -e "      } elseif (\$item[\"name\"] == \"sendsms\") {" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
            echo -e "         \$twilio_config = \$item[\"credentials\"];" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
-           echo -e "         \$conf['twiliophp_account_sid'] = \$twilio_config[\"accountSID\"];" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
-           echo -e "         \$conf['twiliophp_auth_token'] = \$twilio_config[\"authToken\"];" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
+           echo -e "         # \$conf['twiliophp_account_sid'] = \$twilio_config[\"accountSID\"];" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
+           echo -e "         # \$conf['twiliophp_auth_token'] = \$twilio_config[\"authToken\"];" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
            echo -e "      }" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
            echo -e "    }" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
            echo -e "  }" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
@@ -309,13 +309,14 @@ stages:
            echo -e "// Tell Drupal what addresses the proxy server(s) use." >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
            echo -e "\$conf['reverse_proxy_addresses'] = array('127.0.0.1');" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
            echo -e "\$conf['page_cache_invoke_hooks'] = FALSE;" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
-           echo -e "\$conf['cache'] = 1;" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
+           echo -e "\$conf['cache'] = 0;" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
            echo -e "\$conf['cache_lifetime'] = 0;" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
            echo -e "\$conf['page_cache_maximum_age'] = 600;" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
-           echo -e "\$conf['cache_class_cache_form'] = 'DrupalDatabaseCache';" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
            echo -e "\$conf['omit_vary_cookie'] = TRUE;" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
            echo -e "drupal_fast_404();" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
            echo -e "\$conf['drupal_http_request_fails'] = FALSE;" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
+           echo -e "# Setting the allow_authorize_operations to false disallows module install via web console." >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
+           echo -e "# Comment this conf entry if you have enabled SSHFS and have persisted site storage" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
            echo -e "\$conf['allow_authorize_operations'] = FALSE;" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
            echo -e "// Useful for CloudFlare Spam Control" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
            echo -e "if (isset(\$_SERVER['HTTP_CF_CONNECTING_IP'])) {" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php

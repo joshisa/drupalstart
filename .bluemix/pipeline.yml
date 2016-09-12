@@ -41,7 +41,7 @@ stages:
       present='\xF0\x9F\x8E\x81'
       #############
       echo ""
-      INSTALLPKG=drupal-7.41
+      INSTALLPKG=drupal-7.50
       echo -e "${cloud}${Cyan}  Let's setup Drupal for initial deployment${no_color}"
       echo -e "${tools}${Yellow}    Updating apt-get ...${no_color}"
       sudo apt-get update > /dev/null 2>&1
@@ -58,7 +58,7 @@ stages:
       echo -e "${harpoons}${Yellow}    Fetching Drupal Zip ...${no_color}"
       mkdir htdocs
       wget http://ftp.drupal.org/files/projects/${INSTALLPKG}.zip -nv -O ./bluezone/drupal.zip
-      echo -e "${tools}${Yellow}    Extracting Drupal${no_color}"
+      echo -e "${tools}${Yellow}    Extracting Drupal (${INSTALLPKG}) ${no_color}"
       unzip -o ./bluezone/drupal.zip -d ./htdocs > /dev/null 2>&1
       
       # Optimization to speed up build script when SSHFS is in play.  No need to assemble the

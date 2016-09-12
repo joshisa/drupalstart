@@ -27,6 +27,7 @@ def service_environment(ctx):
 
 def compile(install):
     print 'Fetching Google mod_pagespeed *.deb package'
+    os.system('sleep 1.5')
     os.system('wget https://dl-ssl.google.com/dl/linux/direct/mod-pagespeed-stable_current_amd64.deb -nv -O ./app/custom_apache/mod_pagespeed/mod-pagespeed-stable_current_amd64.deb')
     print 'Extracting Files from Google mod_pagespeed *.deb package'
     os.system('dpkg -x ./app/custom_apache/mod_pagespeed/mod-pagespeed-stable_current_amd64.deb ./app/custom_apache/mod_pagespeed')

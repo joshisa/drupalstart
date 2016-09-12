@@ -51,15 +51,6 @@ backend default {
     .between_bytes_timeout  = 10s;     # How long to wait between bytes received from our backend?
 }
 
-/*
- * Not really necessary for Cloud Foundry ... but objects needs to be defined for later if statements.
- */
-acl internal {
-  # "192.10.0.0"/24;
-  #  For remote access, add your IP address here.
-  #  Ex: 162.xxx.xx.xx
-}
-
 /**
  * Defines where the authcache varnish key callback is located.
  *
@@ -137,12 +128,12 @@ sub authcache_recv {
   }
   
   # Do not allow outside access to cron.php or install.php.
-  if (req.url ~ "^/(cron|install)\.php$" && !client.ip ~ internal) {
+  #if (req.url ~ "^/(cron|install)\.php$" && !client.ip ~ internal) {
     # Have Varnish throw the error directly.
-    error 404 "Page not found.";
+  #  error 404 "Page not found.";
     # Use a custom error page that you've defined in Drupal at the path "404".
-    set req.url = "/404";
-  }
+  #  set req.url = "/404";
+  #}
  
  
   # Always cache the following file types for all users. This list of extensions

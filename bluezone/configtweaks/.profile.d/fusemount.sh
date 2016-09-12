@@ -60,13 +60,13 @@ if [ -n "${SSHFS_HOST+set}" ]; then
     mkdir -p /home/vcap/misc/${SSHFS_NAMESPACE}/sites
     # Note:  Rename of existing assembled sites folder must always precede the Symlink creation
     echo -e "${delivery}${Yellow}  Temporarily renaming assembled sites folder ..."
-    mv /home/vcap/app/htdocs/drupal-7.41/sites /home/vcap/app/htdocs/drupal-7.41/mirage
+    mv /home/vcap/app/htdocs/drupal-7.50/sites /home/vcap/app/htdocs/drupal-7.50/mirage
     echo -e "${delivery}${Yellow}  Creating Symlink between Drupal Sites folder and mounted Domain Namespace location ..."
-    ln -s /home/vcap/misc/${SSHFS_NAMESPACE}/sites /home/vcap/app/htdocs/drupal-7.41
+    ln -s /home/vcap/misc/${SSHFS_NAMESPACE}/sites /home/vcap/app/htdocs/drupal-7.50
     # Comment:  cp is too slow, even with 180 sec extended health check
-    # cp -R /home/vcap/app/htdocs/drupal-7.41/mirage/. /home/vcap/app/htdocs/drupal-7.41/sites
+    # cp -R /home/vcap/app/htdocs/drupal-7.50/mirage/. /home/vcap/app/htdocs/drupal-7.50/sites
     # Comment:  scp was too slow, even with 180 sec extended health check
-    # scp -r /home/vcap/app/htdocs/drupal-7.41/mirage/. /home/vcap/app/htdocs/drupal-7.41/sites
+    # scp -r /home/vcap/app/htdocs/drupal-7.50/mirage/. /home/vcap/app/htdocs/drupal-7.50/sites
     # Comment:  Tar over ssh is also too slow for the health check timeout, but it is the fastest of the 3 approaches.
     # To overcome the health check timeout limitation, we modify our deploy script to push the application as a worker (e.g. --no-route )
     # An app pushed as a worker is not subject to the health check timeout.
@@ -76,13 +76,13 @@ if [ -n "${SSHFS_HOST+set}" ]; then
       echo -e "${beer}${Cyan}    Existing settings.php file detected.  Skipping transfer of assembled sites folder."
     else
       echo -e "${harpoons}${Yellow}    Moving previously assembled sites folder content onto SSHFS mount (Overwrite enabled).  Estimated time: > 3 mins ..."
-      tar -C /home/vcap/app/htdocs/drupal-7.41/mirage -jcf - ./ | ssh -i /home/vcap/app/.profile.d/id_rsa -o UserKnownHostsFile=/home/vcap/app/.profile.d/known_hosts ${SSHFS_USER}@${SSHFS_HOST} "tar -C/home/paramount/${SSHFS_NAMESPACE}/sites -ojxf -"
+      tar -C /home/vcap/app/htdocs/drupal-7.50/mirage -jcf - ./ | ssh -i /home/vcap/app/.profile.d/id_rsa -o UserKnownHostsFile=/home/vcap/app/.profile.d/known_hosts ${SSHFS_USER}@${SSHFS_HOST} "tar -C/home/paramount/${SSHFS_NAMESPACE}/sites -ojxf -"
       echo -e "${eyes}${Cyan}  Changing ownership of files folder to match apache web user [vcap] ..."
       chown -R vcap /home/vcap/misc/${SSHFS_NAMESPACE}/sites/default/files
       chmod -R 0700 /home/vcap/misc/${SSHFS_NAMESPACE}/sites/default/files
     fi
     echo -e "${litter}${Yellow}  Removing legacy sites folder"
-    rm -rf /home/vcap/app/htdocs/drupal-7.41/mirage
+    rm -rf /home/vcap/app/htdocs/drupal-7.50/mirage
   else
     echo -e "${fail}${Red}    Symlink creation failed!"
     echo -e "${fail}${Red}    Env Var SSHFS_NAMESPACE not set!"

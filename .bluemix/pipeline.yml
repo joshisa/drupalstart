@@ -283,6 +283,15 @@ stages:
            echo -e "    \$conf['smtp_from'] = 'unmonitored-app-message-do-not-reply@myapp.mybluemix.net';" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
            echo -e "    \$conf['smtp_fromname'] = 'Bluemix Drupal Deploy';" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
            echo -e "  }" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
+           echo -e "  if (isset(\$services_json[\"elephantsql\"])) {" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
+           echo -e "    \$postgres_creds = \$services_json[\"elephantsql\"][0][\"credentials\"];" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
+           echo -e "    \$postgres_config = parse_url(\$postgres_creds[\"uri\"]);" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
+           echo -e "    \$hostname = \$postgres_config[\"host\"];" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
+           echo -e "    \$port = \$postgres_config[\"port\"];" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
+           echo -e "    \$postgres_config[\"username\"] = \$postgres_config[\"user\"];" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
+           echo -e "    \$postgres_config[\"password\"] = \$postgres_config[\"pass\"];" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
+           echo -e "    \$dbname = ltrim(\$postgres_config[\"path\"], \"/\");" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
+           echo -e "  }" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
            echo -e "}" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
            echo -e "\$databases = array (" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
            echo -e "  'default' =>" >> ./htdocs/${INSTALLPKG}/sites/default/settings.php
@@ -370,7 +379,7 @@ stages:
       # http://www.eclipse.org/legal/epl-v10.html
       # For some reason, the deploy stage shell has tracing turned on.  Lets turn it off
       set +x
-      export SSHFS_FIRSTSETUP=yes
+      export SSHFS_FIRSTSETUP=no
       ##########
       # Colors - Lets have some fun ##
       ##########
@@ -444,7 +453,9 @@ stages:
         rm manifest.yml
         mv manifest.new manifest.yml
       else
-        if [ ${CF_REGION} == "US" ]; then
+        #  Making this always false so that the code can be inspected and used if the user
+        #  would like to create one of the paid sendgrid plans
+        if [ ${CF_REGION} == "ALWAYS_WILL_FAIL" ]; then
           if [ -z $(cf s|grep sendgrid|cut -d" " -f1-1) ]; then
             echo -e "${tools}${Yellow}    Pre-creating Sendgrid Service named [${Cyan}sendmail${Yellow}]${no_color}"
             t=0
@@ -458,7 +469,7 @@ stages:
             echo -e "${tools}${Yellow}    Existing Sendgrid Service named [${Cyan}sendmail${Yellow}] detected.${no_color}"
           fi
         else
-          echo -e "${tools}${Yellow}    Sendgrid service not available in this region${no_color}"
+          echo -e "${tools}${Yellow}    Free sendgrid service not available${no_color}"
           echo -e "${tools}${Red}  Removing Sendgrid service reference from manifest.yml${no_color}"
           sed -e "/sendmail/ {d;}" ./manifest.yml > manifest.new
           rm manifest.yml

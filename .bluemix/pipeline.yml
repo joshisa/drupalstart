@@ -405,7 +405,19 @@ stages:
       
       if [ -z $(cf s|grep drupaldb|cut -d" " -f1-1) ]; then
         echo -e "${fail}${Red}  PostGresql Service Instance [${Yellow}drupaldb${Red}] was not found${no_color}"
-        return 1
+        if [ ${CF_REGION} == "US" ]; then
+            echo -e "${tools}${Yellow}    Pre-creating PostgreSQL ElephantSQL Service named [${Cyan}drupaldb${Yellow}]${no_color}"
+            echo -e "${tools}${Red}    For production usage, a PostgreSQL by Compose service instance is strongly recommended${no_color}"
+            t=0
+            until [ $t -ge 5 ]
+            do
+              cf create-service elephantsql turtle drupaldb > /dev/null 2>&1 && break
+              t=$[$t+1]
+              sleep 15
+            done
+        else
+          echo -e "${tools}${Yellow}    PostgreSQL ElephantSQL service not available in this region${no_color}"
+        fi
       fi
       
       if [ -z $(cf s|grep drupalredis|cut -d" " -f1-1) ]; then
